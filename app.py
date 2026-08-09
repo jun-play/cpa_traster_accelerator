@@ -108,7 +108,7 @@ def collect_kicpa_cpa():
             p["experience"] = field_map.get("경력", "")
             p["company_type"] = field_map.get("회사구분", "")
             content = pre.get_text(" ", strip=True) if pre else ""
-            p["content"] = re.sub(r"\s{2,}", " ", content)[:600]
+            p["content"] = re.sub(r"\s{2,}", " ", content)  # 상세보기가 스크롤되는 창이라 잘라낼 필요 없음 — 전체 원문 그대로
         except Exception:
             p["deadline"] = ""
             p["experience"] = ""
