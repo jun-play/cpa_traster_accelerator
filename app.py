@@ -16,18 +16,28 @@ gunicorn(운영용 서버 프로그램)이 이 파일의 `app` 객체를 직접 
 
 import os
 import re
+import threading
 import time
-from datetime import date
+from datetime import date, datetime
 
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, send_from_directory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TODAY = date.today()
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+CACHE_TTL_SECONDS = 30 * 60  # 30분 — 이 시간 안에는 다시 안 긁고 캐시를 씀
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path="")
+
+# ---------------------------------------------------------------------------
+# 여러 사람이 동시에 써도 안전하게: 메모리 캐시 + 락
+# 락(lock)이 하는 일: 캐시가 오래돼서 다시 긁어야 할 때, 여러 명이 동시에
+# 몰려도 실제로 KICPA를 긁는 건 1명(첫 요청)만 하고, 나머지는 그 결과를
+# 그냥 같이 받아감. 이게 없으면 5명이 동시에 눌렀을 때 KICPA를 5번 긁게 됨.
+# ---------------------------------------------------------------------------
+_cache = {"data": None, "fetched_at": 0}
+_cache_lock = threading.Lock()
 
 
 def parse_deadline(s: str):
@@ -44,8 +54,11 @@ def parse_deadline(s: str):
 
 
 def is_expired(s: str) -> bool:
+    """호출되는 그 순간의 날짜(date.today())를 기준으로 판단.
+    서버가 며칠씩 켜져 있어도 매번 '지금' 기준으로 계산됨 — 서버 시작 시점에
+    고정되지 않도록 하는 게 핵심."""
     d = parse_deadline(s)
-    return d is not None and d < TODAY
+    return d is not None and d < date.today()
 
 
 def collect_kicpa_cpa():
@@ -112,11 +125,35 @@ def index():
 
 @app.route("/api/kicpa")
 def api_kicpa():
-    try:
-        data = collect_kicpa_cpa()
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    now = time.time()
+
+    # 캐시가 신선하면(30분 이내) 즉시 반환 — 대부분의 요청은 여기서 끝남
+    with _cache_lock:
+        if _cache["data"] is not None and (now - _cache["fetched_at"]) < CACHE_TTL_SECONDS:
+            age_min = int((now - _cache["fetched_at"]) / 60)
+            return jsonify({
+                "postings": _cache["data"],
+                "cached": True,
+                "fetched_minutes_ago": age_min,
+            })
+
+    # 캐시가 없거나 오래됐으면, 락을 잡은 사람만 실제로 긁음
+    # (동시에 여러 명이 여기 도달해도 lock 덕분에 한 번만 실행됨)
+    with _cache_lock:
+        # 락을 기다리는 동안 다른 사람이 이미 갱신했을 수 있으니 재확인
+        if _cache["data"] is not None and (time.time() - _cache["fetched_at"]) < CACHE_TTL_SECONDS:
+            return jsonify({
+                "postings": _cache["data"],
+                "cached": True,
+                "fetched_minutes_ago": int((time.time() - _cache["fetched_at"]) / 60),
+            })
+        try:
+            data = collect_kicpa_cpa()
+            _cache["data"] = data
+            _cache["fetched_at"] = time.time()
+            return jsonify({"postings": data, "cached": False, "fetched_minutes_ago": 0})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

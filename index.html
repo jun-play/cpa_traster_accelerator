@@ -382,7 +382,7 @@
 <body>
 
 <header>
-  <p class="eyebrow">WORKPAPER — CPA CAREER MATCH · REF. 2026-08-09</p>
+  <p class="eyebrow">WORKPAPER — CPA CAREER MATCH · REF. <span id="refDate">-</span></p>
   <h1>회계사 이직 엑셀러레이터</h1>
   <p class="sub">공고 원문을 감사조서처럼 한 건씩 대조해, 왜 맞고 왜 안 맞는지 근거를 남깁니다. 등급은 참고용 tickmark일 뿐 — 최종 판단은 본인 몫입니다.</p>
   <div class="header-meta">SOURCE: KICPA 구인(CPA)<br>SAMPLE: <span id="metaCount">0</span>건 (마감분 제외)</div>
@@ -471,7 +471,7 @@
 </div>
 
 <footer>
-  이 대시보드는 KICPA 구인(CPA) 게시판 전수조사 데이터(2026-08-09 스냅샷) 기반 프로토타입입니다. 실제 지원 전 원문 공고를 반드시 다시 확인하세요.
+  이 대시보드는 KICPA 구인(CPA) 게시판을 "가져오기" 버튼을 누른 시점 기준으로 실시간 수집합니다 (서버 캐시 30분). 실제 지원 전 원문 공고를 반드시 다시 확인하세요.
 </footer>
 
 <div class="overlay" id="overlay">
@@ -579,7 +579,8 @@ function deadlineDays(deadlineStr){
   const m = deadlineStr.match(/(\d{4})\.(\d{2})\.(\d{2})/);
   if(!m) return null;
   const d = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
-  const today = new Date(2026,7,9); // 2026-08-09
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 시:분:초 제거, 날짜만 비교
   return Math.round((d-today)/(1000*60*60*24));
 }
 
@@ -733,22 +734,25 @@ pullBtn.addEventListener('click', async ()=>{
   try{
     const res = await fetch('/api/kicpa');
     if(!res.ok) throw new Error('서버 응답 오류 ('+res.status+')');
-    const data = await res.json();
-    if(data.error) throw new Error(data.error);
+    const payload = await res.json();
+    if(payload.error) throw new Error(payload.error);
 
-    POSTINGS = data;
+    POSTINGS = payload.postings;
     document.getElementById('metaCount').textContent = POSTINGS.length;
     document.getElementById('statTotal').textContent = POSTINGS.length;
     const soonCount = POSTINGS.filter(p=>{const d=deadlineDays(p.deadline); return d!==null && d>=0 && d<=7;}).length;
     document.getElementById('statSoon').textContent = soonCount;
 
     pullStatus.className = 'pull-status ok';
-    pullStatus.textContent = `완료 — ${POSTINGS.length}건 가져왔습니다 (마감분 자동 제외). 아래 프로필로 자동 채점했습니다.`;
+    const freshNote = payload.cached
+      ? `(캐시됨 — ${payload.fetched_minutes_ago}분 전 기준, 30분마다 갱신됩니다)`
+      : '(방금 새로 가져옴)';
+    pullStatus.textContent = `완료 — ${POSTINGS.length}건 ${freshNote}. 아래 프로필로 자동 채점했습니다.`;
 
     runScoring();
   } catch(err){
     pullStatus.className = 'pull-status error';
-    pullStatus.textContent = '가져오기 실패: ' + err.message + ' — server.py를 먼저 실행하고 http://localhost:8642 로 접속했는지 확인하세요.';
+    pullStatus.textContent = '가져오기 실패: ' + err.message + ' — 서버가 켜져 있는지 확인하세요.';
   } finally {
     pullBtn.disabled = false;
     pullBtn.textContent = '한공회 구인공고 가져오기';
@@ -761,6 +765,12 @@ document.getElementById('statTotal').textContent = '0';
 document.getElementById('statSoon').textContent = '0';
 document.getElementById('statA').textContent = '0';
 document.getElementById('statScored').textContent = '0';
+
+// 헤더의 REF 날짜는 페이지를 연 그 날짜로 (하드코딩 아님)
+const _now = new Date();
+document.getElementById('refDate').textContent =
+  `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
+
 render();
 </script>
 </body>
