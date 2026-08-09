@@ -93,6 +93,7 @@ def collect_kicpa_cpa():
         })
 
     for p in postings:
+        p["url"] = f"https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face?ijIdNum={p['bltn_no']}"
         try:
             r = s.post("https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face",
                         data={"ijIdNum": p["bltn_no"]})
