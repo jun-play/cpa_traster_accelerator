@@ -61,36 +61,51 @@ def is_expired(s: str) -> bool:
     return d is not None and d < date.today()
 
 
+CO_SEP_TABS = [
+    ("1", "회계법인"),
+    ("2", "회계사무소"),
+    ("3", "공공기관"),
+    ("4", "일반기업"),
+    ("5", "헤드헌터"),
+    ("8", "한국공인회계사회"),
+]
+
+
 def collect_kicpa_cpa():
     s = requests.Session()
     s.headers.update(HEADERS)
     s.get("https://www.kicpa.or.kr/portal/default/kicpa/gnb/kr_pc/menu05/menu09/menu01.page")
 
-    resp = s.post("https://www.kicpa.or.kr/home/jobOffrSrchGnrl/list.face",
-                   data={"ijJobSep": "1", "listCnt": "300"})
-    resp.encoding = "utf-8"
-    soup = BeautifulSoup(resp.text, "html.parser")
-
-    rows = soup.select("table tbody tr")
     postings = []
-    for tr in rows:
-        tds = tr.find_all("td")
-        if len(tds) < 6:
-            continue
-        a = tds[1].find("a")
-        title = a.get_text(strip=True) if a else tds[1].get_text(strip=True)
-        onclick = a.get("onclick", "") if a else ""
-        bltn_no = ""
-        if "fn_detail(" in onclick:
-            bltn_no = onclick.split("fn_detail('")[1].split("')")[0]
-        if not bltn_no:
-            continue
-        postings.append({
-            "bltn_no": bltn_no,
-            "title": title,
-            "company": tds[2].get_text(strip=True),
-            "region": tds[3].get_text(" ", strip=True),
-        })
+    seen_ids = set()
+
+    for co_sep, tab_name in CO_SEP_TABS:
+        resp = s.post("https://www.kicpa.or.kr/home/jobOffrSrchGnrl/list.face",
+                       data={"ijJobSep": "1", "ijCoSep": co_sep, "listCnt": "300"})
+        resp.encoding = "utf-8"
+        soup = BeautifulSoup(resp.text, "html.parser")
+        rows = soup.select("table tbody tr")
+
+        for tr in rows:
+            tds = tr.find_all("td")
+            if len(tds) < 6:
+                continue
+            a = tds[1].find("a")
+            title = a.get_text(strip=True) if a else tds[1].get_text(strip=True)
+            onclick = a.get("onclick", "") if a else ""
+            bltn_no = ""
+            if "fn_detail(" in onclick:
+                bltn_no = onclick.split("fn_detail('")[1].split("')")[0]
+            if not bltn_no or bltn_no in seen_ids:
+                continue
+            seen_ids.add(bltn_no)
+            postings.append({
+                "bltn_no": bltn_no,
+                "title": title,
+                "company": tds[2].get_text(strip=True),
+                "region": tds[3].get_text(" ", strip=True),
+                "source_tab": tab_name,
+            })
 
     for p in postings:
         p["url"] = f"https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face?ijIdNum={p['bltn_no']}"
@@ -114,9 +129,65 @@ def collect_kicpa_cpa():
             p["experience"] = ""
             p["company_type"] = ""
             p["content"] = ""
-        time.sleep(0.12)
+        time.sleep(0.1)
 
     return [p for p in postings if not is_expired(p.get("deadline", ""))]
+
+
+def collect_kifrs():
+    """KIFRS.com 구인공고 — API 하나로 목록+본문이 다 들어있어 상세페이지 요청 불필요.
+    사내 재무·회계 포지션(구글, 하이브, 빗썸 등)이 주로 올라옴. 마감일 개념이 거의 없이
+    상시채용(periodEndDate 없음) 위주라 is_expired 필터에 걸리지 않음."""
+    try:
+        r = requests.get("https://www.kifrs.com/api/recruitments",
+                          params={"page": 1, "rows": 10000, "sort": "recommend"},
+                          headers=HEADERS, timeout=20)
+        data = r.json()
+    except Exception:
+        return []
+
+    postings = []
+    for rec in data.get("recruitments", []):
+        content_parts = [rec.get("kicpaContent") or "", rec.get("kicpaOtherContent") or ""]
+        content = "\n\n".join(part for part in content_parts if part)
+        content = re.sub(r"\bundefined\b", "", content)
+        content = re.sub(r"\n{3,}", "\n\n", content).strip()
+
+        exp_min, exp_max = rec.get("experienceMin"), rec.get("experienceMax")
+        experience = f"{exp_min}~{exp_max}년" if exp_min is not None and exp_max is not None else ""
+
+        deadline = rec.get("periodEndDate") or ""
+        if deadline:
+            deadline = deadline[:10].replace("-", ".")  # "2026-08-09T..." -> "2026.08.09"
+
+        postings.append({
+            "bltn_no": f"kifrs_{rec.get('id')}",
+            "title": rec.get("title") or "",
+            "company": rec.get("firmName") or "",
+            "region": rec.get("regionDetailText") or rec.get("regionText") or "",
+            "deadline": deadline,
+            "experience": experience,
+            "company_type": "",
+            "content": content,
+            "url": rec.get("applicationUrl") or "https://www.kifrs.com/jobs",
+            "source_tab": "KIFRS",
+        })
+
+    return [p for p in postings if not is_expired(p.get("deadline", ""))]
+
+
+def collect_all_sources():
+    """KICPA(6개 탭) + KIFRS를 합쳐서 반환. 하나가 실패해도 나머지는 살아있게 개별 예외처리."""
+    all_postings = []
+    try:
+        all_postings.extend(collect_kicpa_cpa())
+    except Exception:
+        pass
+    try:
+        all_postings.extend(collect_kifrs())
+    except Exception:
+        pass
+    return all_postings
 
 
 @app.route("/")
@@ -149,7 +220,7 @@ def api_kicpa():
                 "fetched_minutes_ago": int((time.time() - _cache["fetched_at"]) / 60),
             })
         try:
-            data = collect_kicpa_cpa()
+            data = collect_all_sources()
             _cache["data"] = data
             _cache["fetched_at"] = time.time()
             return jsonify({"postings": data, "cached": False, "fetched_minutes_ago": 0})
