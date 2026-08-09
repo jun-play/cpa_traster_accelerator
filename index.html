@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPA 이직 엑셀러레이터 — 감사조서형 매칭보드</title>
+<style>
+  :root{
+    --ink:#1c2b39;
+    --ink-soft:#2c3e50;
+    --paper:#f6f1e4;
+    --paper-deep:#efe7d3;
+    --line:#d9cdaf;
+    --seal:#b2402f;
+    --seal-deep:#8f2f22;
+    --gold:#a9862f;
+    --slate:#5b6770;
+    --slate-light:#8a94a0;
+    --ok:#3c6e47;
+    --white:#fffdf8;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 2.1em;
+    background-position: 0 7.4em;
+  }
+
+  /* ---------- Header : 표지 블록 ---------- */
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:2.6rem 2.4rem 2rem;
+    position:relative;
+    border-bottom:6px solid var(--seal);
+  }
+  .eyebrow{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    color:#c9b98a;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:Georgia,"Noto Serif KR",serif;
+    font-size:2.1rem;
+    font-weight:700;
+    margin:0 0 0.5rem;
+    letter-spacing:-0.01em;
+  }
+  header p.sub{
+    max-width:640px;
+    color:#cdd6dc;
+    font-size:0.98rem;
+    line-height:1.6;
+    margin:0;
+  }
+  .header-meta{
+    position:absolute;
+    right:2.4rem;
+    top:2.6rem;
+    text-align:right;
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:0.75rem;
+    color:#9fb0ba;
+    line-height:1.6;
+  }
+
+  /* ---------- Stats bar ---------- */
+  .stats{
+    display:flex;
+    gap:0;
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .stat{
+    flex:1;
+    min-width:140px;
+    padding:1.1rem 1.4rem;
+    border-right:1px solid var(--line);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{
+    font-family:Georgia,serif;
+    font-size:1.7rem;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .stat .label{
+    font-size:0.75rem;
+    color:var(--slate);
+    letter-spacing:0.03em;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:0;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Profile panel ---------- */
+  aside{
+    position:sticky;
+    top:0;
+    background:var(--white);
+    border-right:1px solid var(--line);
+    padding:1.6rem 1.5rem 2.4rem;
+    min-height:100vh;
+  }
+  aside h2{
+    font-family:Georgia,serif;
+    font-size:1.05rem;
+    margin:0 0 1.1rem;
+    padding-bottom:0.6rem;
+    border-bottom:2px solid var(--ink);
+  }
+  .field{margin-bottom:1.3rem;}
+  .field label{
+    display:block;
+    font-size:0.8rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:0.4rem;
+  }
+  .field input[type=range]{width:100%;}
+  .field .rangeval{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:0.85rem;
+    color:var(--seal);
+  }
+  .chip-group{display:flex;flex-direction:column;gap:0.45rem;}
+  .chip{
+    display:flex;
+    align-items:flex-start;
+    gap:0.5rem;
+    font-size:0.82rem;
+    line-height:1.4;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:0.4rem 0.5rem;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--paper);
+  }
+  .chip input{margin-top:0.15rem;}
+  .chip.active{
+    border-color:var(--seal);
+    background:#fbeee9;
+  }
+  select, input[type=text]{
+    width:100%;
+    padding:0.5rem 0.6rem;
+    border:1px solid var(--line);
+    background:var(--paper);
+    font-size:0.85rem;
+    font-family:inherit;
+    color:var(--ink);
+    border-radius:var(--radius);
+  }
+  .weight-note{
+    font-size:0.72rem;
+    color:var(--slate-light);
+    margin-top:0.5rem;
+    line-height:1.5;
+  }
+  .btn-score{
+    width:100%;
+    background:var(--seal);
+    color:var(--white);
+    border:none;
+    padding:0.75rem;
+    font-size:0.92rem;
+    font-weight:700;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    margin-top:0.4rem;
+    border-radius:var(--radius);
+  }
+  .btn-score:hover{background:var(--seal-deep);}
+
+  /* ---------- Main list ---------- */
+  main{padding:1.4rem 1.6rem 3rem;}
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:1rem;
+    flex-wrap:wrap;
+    gap:0.6rem;
+  }
+  .toolbar .sortbox{display:flex;gap:0.5rem;align-items:center;font-size:0.8rem;color:var(--slate);}
+  .toolbar select{width:auto;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(320px,1fr));
+    gap:1rem;
+  }
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--line);
+    padding:1.1rem 1.15rem 1rem;
+    position:relative;
+    cursor:pointer;
+    transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .card:hover{
+    box-shadow:0 6px 18px rgba(28,43,57,0.12);
+    transform:translateY(-2px);
+  }
+  .stamp{
+    position:absolute;
+    top:0.7rem;
+    right:0.8rem;
+    width:44px;height:44px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;
+    font-weight:700;
+    font-size:1.3rem;
+    transform:rotate(-8deg);
+    border:2.5px solid currentColor;
+  }
+  .stamp.A{color:var(--seal);}
+  .stamp.B{color:var(--gold);}
+  .stamp.C{color:var(--slate);}
+  .stamp.D{color:var(--slate-light);}
+
+  .card .company{
+    font-size:0.78rem;
+    color:var(--slate);
+    font-weight:600;
+    margin-bottom:0.25rem;
+  }
+  .card .title{
+    font-family:Georgia,serif;
+    font-size:1.02rem;
+    line-height:1.4;
+    padding-right:3.2rem;
+    margin-bottom:0.6rem;
+    color:var(--ink);
+  }
+  .card .reason{
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border-left:3px solid var(--seal);
+    padding:0.45rem 0.6rem;
+    margin-bottom:0.65rem;
+    line-height:1.5;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.4rem 0.6rem;
+    font-size:0.74rem;
+    color:var(--slate);
+    font-family:"SFMono-Regular",Consolas,monospace;
+  }
+  .meta-row span{white-space:nowrap;}
+  .deadline-tag{
+    font-weight:700;
+  }
+  .deadline-tag.soon{color:var(--seal);}
+  .score-bar-track{
+    height:5px;background:var(--paper-deep);margin-top:0.7rem;
+  }
+  .score-bar-fill{height:100%;background:var(--ink);}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(28,43,57,0.55);
+    align-items:flex-start;
+    justify-content:center;
+    padding:3vh 1.2rem;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--white);
+    max-width:640px;width:100%;
+    padding:1.8rem 1.9rem 2.2rem;
+    position:relative;
+    border-top:5px solid var(--seal);
+  }
+  .modal .close{
+    position:absolute;top:0.9rem;right:1rem;
+    background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--slate);
+  }
+  .modal h3{
+    font-family:Georgia,serif;
+    font-size:1.25rem;
+    margin:0.2rem 2rem 0.2rem 0;
+    line-height:1.4;
+  }
+  .modal .company{color:var(--slate);font-size:0.85rem;margin-bottom:1rem;}
+  .modal section{margin-bottom:1.1rem;}
+  .modal section h4{
+    font-size:0.78rem;
+    letter-spacing:0.05em;
+    color:var(--seal);
+    text-transform:uppercase;
+    margin:0 0 0.4rem;
+    border-bottom:1px solid var(--line);
+    padding-bottom:0.3rem;
+  }
+  .modal section p, .modal section li{
+    font-size:0.87rem;
+    line-height:1.65;
+    color:var(--ink-soft);
+    margin:0.2rem 0;
+  }
+  .axis-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;}
+  .axis-label{width:120px;font-size:0.78rem;color:var(--slate);flex-shrink:0;}
+  .axis-track{flex:1;height:7px;background:var(--paper-deep);position:relative;}
+  .axis-fill{height:100%;background:var(--ink);}
+  .axis-val{width:34px;text-align:right;font-family:"SFMono-Regular",Consolas,monospace;font-size:0.78rem;color:var(--ink);}
+
+  .empty{
+    padding:3rem 1rem;
+    text-align:center;
+    color:var(--slate);
+    font-size:0.9rem;
+  }
+  footer{
+    text-align:center;
+    padding:1.6rem;
+    font-size:0.72rem;
+    color:var(--slate-light);
+    border-top:1px solid var(--line);
+  }
+
+  /* ---------- Pull bar ---------- */
+  .pullbar{
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    padding:0.85rem 2.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+  .btn-pull{
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:0.6rem 1.1rem;
+    font-size:0.85rem;
+    font-weight:700;
+    cursor:pointer;
+    border-radius:var(--radius);
+    letter-spacing:0.01em;
+    flex-shrink:0;
+  }
+  .btn-pull:hover{background:var(--ink-soft);}
+  .btn-pull:disabled{background:var(--slate-light);cursor:wait;}
+  .pull-status{
+    font-size:0.82rem;
+    color:var(--slate);
+    line-height:1.5;
+  }
+  .pull-status.error{color:var(--seal);font-weight:600;}
+  .pull-status.ok{color:var(--ok);}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">WORKPAPER — CPA CAREER MATCH · REF. 2026-08-09</p>
+  <h1>회계사 이직 엑셀러레이터</h1>
+  <p class="sub">공고 원문을 감사조서처럼 한 건씩 대조해, 왜 맞고 왜 안 맞는지 근거를 남깁니다. 등급은 참고용 tickmark일 뿐 — 최종 판단은 본인 몫입니다.</p>
+  <div class="header-meta">SOURCE: KICPA 구인(CPA)<br>SAMPLE: <span id="metaCount">0</span>건 (마감분 제외)</div>
+</header>
+
+<div class="pullbar">
+  <button class="btn-pull" id="pullBtn">한공회 구인공고 가져오기</button>
+  <span class="pull-status" id="pullStatus">아직 아무 공고도 없습니다. 버튼을 눌러 KICPA에서 실시간으로 가져오세요. (40~60초 정도 걸려요 — 공고 하나하나 원문까지 확인하는 중이라 그렇습니다)</span>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num" id="statTotal">-</div><div class="label">전체 공고</div></div>
+  <div class="stat"><div class="num" id="statA">-</div><div class="label">A등급</div></div>
+  <div class="stat"><div class="num" id="statSoon">-</div><div class="label">7일 내 마감</div></div>
+  <div class="stat"><div class="num" id="statScored">-</div><div class="label">채점 완료</div></div>
+</div>
+
+<div class="layout">
+  <aside>
+    <h2>내 프로필</h2>
+
+    <div class="field">
+      <label>경력 연차: <span class="rangeval" id="yearsVal">5년</span></label>
+      <input type="range" id="years" min="0" max="20" value="5">
+    </div>
+
+    <div class="field">
+      <label>선호 지역</label>
+      <select id="region">
+        <option value="">무관</option>
+        <option>서울</option>
+        <option>경기</option>
+        <option>부산</option>
+        <option>대구</option>
+        <option>기타 지방</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>중요하게 보는 축 (복수 선택 가능)</label>
+      <div class="chip-group" id="axisChips">
+        <label class="chip active" data-axis="round1">
+          <input type="checkbox" value="round1" checked>
+          System/AI 레버리지 — Innovation·자동화·디지털 관련 업무
+        </label>
+        <label class="chip active" data-axis="round2">
+          <input type="checkbox" value="round2" checked>
+          감사 유지 — 순수 회계감사 중심, 딜/세무/개업 제외
+        </label>
+        <label class="chip" data-axis="big4">
+          <input type="checkbox" value="big4">
+          Big4 우선 — 삼일·삼정·안진·EY한영
+        </label>
+      </div>
+      <p class="weight-note">체크한 축에 가중치가 실립니다. 아무것도 안 고르면 경력·지역 매칭만으로 채점합니다.</p>
+    </div>
+
+    <button class="btn-score" id="scoreBtn">내 프로필로 채점하기</button>
+    <p class="weight-note" style="margin-top:1rem;">※ 이 점수는 공고 원문의 키워드·경력조건을 규칙 기반으로 대조한 것입니다. AI가 임의로 판단하지 않고, 근거가 되는 문구를 그대로 보여줍니다.</p>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <div class="sortbox">
+        총 <strong id="visibleCount">-</strong>건 표시
+      </div>
+      <div class="sortbox">
+        정렬:
+        <select id="sortSel">
+          <option value="score">적합도 높은 순</option>
+          <option value="deadline">마감 임박 순</option>
+          <option value="company">회사명 순</option>
+        </select>
+        등급:
+        <select id="gradeFilter">
+          <option value="">전체</option>
+          <option value="A">A만</option>
+          <option value="B">B이상</option>
+          <option value="C">C이상</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" id="cardGrid"></div>
+    <div class="empty" id="emptyMsg" style="display:none;">조건에 맞는 공고가 없습니다. 필터를 조정해보세요.</div>
+  </main>
+</div>
+
+<footer>
+  이 대시보드는 KICPA 구인(CPA) 게시판 전수조사 데이터(2026-08-09 스냅샷) 기반 프로토타입입니다. 실제 지원 전 원문 공고를 반드시 다시 확인하세요.
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+let POSTINGS = [];
+
+const ROUND1_KEYWORDS = ["Innovation","혁신","AI 신사업","AI Agent","디지털 감사","Digital Audit","자동화","Tech Lead","System","데이터 분석","AI활용","AI Agent","AI"];
+const AUDIT_KEYWORDS = ["회계감사","감사본부","Audit","감사부문","감사팀","외부감사"];
+const EXCLUDE_KEYWORDS = ["가치평가","Valuation","M&A","FDD","재무실사","세무","Tax","개업","반개업","독립개업","기장","컨설턴트","자문"];
+const BIG4 = ["삼일","삼정","안진","딜로이트","EY","한영","KPMG"];
+
+function findMatch(text, list){
+  return list.find(k => text.includes(k)) || null;
+}
+
+function parseExperienceRange(expStr){
+  // "5~10년" / "경력무관" / "3년 이상" 등 처리
+  if(!expStr) return null;
+  if(expStr.includes("무관")) return [0,99];
+  let m = expStr.match(/(\d+)\s*[~\-]\s*(\d+)/);
+  if(m) return [parseInt(m[1]), parseInt(m[2])];
+  m = expStr.match(/(\d+)\s*년\s*이상/);
+  if(m) return [parseInt(m[1]), 99];
+  m = expStr.match(/(\d+)/);
+  if(m) return [parseInt(m[1]), parseInt(m[1])+3];
+  return null;
+}
+
+function scorePosting(p, profile){
+  const text = (p.title + " " + p.content);
+  const axes = [];
+
+  // 축1: System/AI 레버리지 (0~25)
+  let r1 = 0, r1Reason = "관련 키워드 없음";
+  const r1match = findMatch(text, ROUND1_KEYWORDS);
+  if(r1match){
+    r1 = profile.axes.includes("round1") ? 25 : 14;
+    r1Reason = `'${r1match}' 키워드 확인`;
+  }
+  axes.push({label:"System/AI 레버리지", score:r1, max:25, reason:r1Reason});
+
+  // 축2: 감사유지 적합성 (0~25)
+  let r2 = 0, r2Reason = "감사 키워드 없음 또는 딜/세무 혼재";
+  const auditMatch = findMatch(text, AUDIT_KEYWORDS);
+  const exMatch = findMatch(text, EXCLUDE_KEYWORDS);
+  if(auditMatch && !exMatch){
+    r2 = profile.axes.includes("round2") ? 25 : 14;
+    r2Reason = `'${auditMatch}' 명시, 딜/세무성 키워드 없음`;
+  } else if(exMatch){
+    r2Reason = `'${exMatch}' 포함되어 순수감사 아님`;
+  }
+  axes.push({label:"감사유지 적합성", score:r2, max:25, reason:r2Reason});
+
+  // 축3: 경력 매칭 (0~25)
+  let r3 = 10, r3Reason = "경력조건 명시 안됨 — 중립 처리";
+  const range = parseExperienceRange(p.experience);
+  if(range){
+    if(profile.years >= range[0] && profile.years <= range[1]){
+      r3 = 25; r3Reason = `${p.experience} 조건에 본인 경력(${profile.years}년) 부합`;
+    } else if(profile.years < range[0]){
+      const gap = range[0]-profile.years;
+      r3 = Math.max(0, 20 - gap*7);
+      r3Reason = `${p.experience} 요구 대비 ${gap}년 부족`;
+    } else {
+      r3 = 18; r3Reason = `${p.experience} 조건보다 경력 많음 — 지원 가능하나 눈높이 확인 필요`;
+    }
+  }
+  axes.push({label:"경력 매칭", score:Math.round(r3), max:25, reason:r3Reason});
+
+  // 축4: 지역/법인 (0~25)
+  let r4 = 10, r4Reason = "지역 조건 미지정";
+  if(profile.region){
+    if(p.region.includes(profile.region)){
+      r4 = 15; r4Reason = `선호지역(${profile.region}) 일치`;
+    } else {
+      r4 = 5; r4Reason = `선호지역(${profile.region}) 불일치 (공고지역: ${p.region})`;
+    }
+  }
+  const isBig4 = BIG4.some(b => p.company.includes(b));
+  if(profile.axes.includes("big4")){
+    if(isBig4){ r4 += 10; r4Reason += " · Big4 일치"; }
+    else { r4Reason += " · Big4 아님"; }
+  } else {
+    r4 += 5;
+  }
+  r4 = Math.min(25, r4);
+  axes.push({label:"지역/법인 조건", score:Math.round(r4), max:25, reason:r4Reason});
+
+  const total = axes.reduce((s,a)=>s+a.score,0);
+  let grade = "D";
+  if(total>=80) grade="A";
+  else if(total>=60) grade="B";
+  else if(total>=40) grade="C";
+
+  const topAxis = axes.slice().sort((a,b)=>b.score-a.score)[0];
+  const oneLiner = `${topAxis.label} 축에서 가장 강함 — ${topAxis.reason}`;
+
+  return {total, grade, axes, oneLiner};
+}
+
+function deadlineDays(deadlineStr){
+  const m = deadlineStr.match(/(\d{4})\.(\d{2})\.(\d{2})/);
+  if(!m) return null;
+  const d = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  const today = new Date(2026,7,9); // 2026-08-09
+  return Math.round((d-today)/(1000*60*60*24));
+}
+
+let scoredData = [];
+
+function getProfile(){
+  const years = parseInt(document.getElementById('years').value,10);
+  const region = document.getElementById('region').value;
+  const axes = Array.from(document.querySelectorAll('#axisChips input:checked')).map(el=>el.value);
+  return {years, region, axes};
+}
+
+function runScoring(){
+  const profile = getProfile();
+  scoredData = POSTINGS.map(p => {
+    const result = scorePosting(p, profile);
+    return Object.assign({}, p, result, {days: deadlineDays(p.deadline)});
+  });
+  document.getElementById('statScored').textContent = scoredData.length;
+  document.getElementById('statA').textContent = scoredData.filter(p=>p.grade==='A').length;
+  render();
+}
+
+function render(){
+  const sortSel = document.getElementById('sortSel').value;
+  const gradeFilter = document.getElementById('gradeFilter').value;
+  let list = scoredData.slice();
+
+  if(gradeFilter === 'A') list = list.filter(p=>p.grade==='A');
+  else if(gradeFilter === 'B') list = list.filter(p=>['A','B'].includes(p.grade));
+  else if(gradeFilter === 'C') list = list.filter(p=>['A','B','C'].includes(p.grade));
+
+  if(sortSel==='score') list.sort((a,b)=>b.total-a.total);
+  else if(sortSel==='deadline') list.sort((a,b)=>(a.days??999)-(b.days??999));
+  else if(sortSel==='company') list.sort((a,b)=>a.company.localeCompare(b.company,'ko'));
+
+  document.getElementById('visibleCount').textContent = list.length;
+  const noData = POSTINGS.length === 0;
+  document.getElementById('emptyMsg').style.display = list.length ? 'none' : 'block';
+  document.getElementById('emptyMsg').textContent = noData
+    ? '아직 공고가 없습니다. 위 "한공회 구인공고 가져오기" 버튼을 눌러주세요.'
+    : '조건에 맞는 공고가 없습니다. 필터를 조정해보세요.';
+
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  list.forEach((p,idx)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    const soon = p.days!==null && p.days<=7;
+    card.innerHTML = `
+      <div class="stamp ${p.grade}">${p.grade}</div>
+      <div class="company">${p.company}${p.company_type?(' · '+p.company_type):''}</div>
+      <div class="title">${p.title}</div>
+      <div class="reason">${p.oneLiner}</div>
+      <div class="meta-row">
+        <span>${p.region||'지역미상'}</span>
+        <span>경력 ${p.experience||'미상'}</span>
+        <span class="deadline-tag ${soon?'soon':''}">${p.days!==null ? (p.days<0?'마감':'D-'+p.days) : p.deadline}</span>
+      </div>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:${p.total}%"></div></div>
+    `;
+    card.addEventListener('click', ()=>openModal(p));
+    grid.appendChild(card);
+  });
+}
+
+function openModal(p){
+  const modal = document.getElementById('modalBody');
+  const axisHtml = p.axes.map(a=>`
+    <div class="axis-row">
+      <div class="axis-label">${a.label}</div>
+      <div class="axis-track"><div class="axis-fill" style="width:${(a.score/a.max*100)}%"></div></div>
+      <div class="axis-val">${a.score}/${a.max}</div>
+    </div>
+    <p style="font-size:0.76rem;color:var(--slate);margin:-0.15rem 0 0.5rem 0;">${a.reason}</p>
+  `).join('');
+
+  modal.innerHTML = `
+    <button class="close" id="closeBtn">×</button>
+    <div class="stamp ${p.grade}" style="position:static;display:inline-flex;transform:rotate(-6deg);margin-bottom:0.6rem;">${p.grade}</div>
+    <h3>${p.title}</h3>
+    <div class="company">${p.company} · ${p.region} · 경력 ${p.experience||'미상'} · 마감 ${p.deadline}</div>
+
+    <section>
+      <h4>매칭 근거 (축별 채점)</h4>
+      ${axisHtml}
+    </section>
+
+    <section>
+      <h4>공고 원문 발췌</h4>
+      <p>${p.content}</p>
+    </section>
+
+    <section>
+      <h4>지원 전략 메모</h4>
+      <p>${strategyNote(p)}</p>
+    </section>
+  `;
+  document.getElementById('closeBtn').addEventListener('click', closeModal);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function strategyNote(p){
+  const notes = [];
+  if(p.days!==null && p.days<=7 && p.days>=0) notes.push(`마감이 ${p.days}일 남아 촉박합니다 — 우선순위를 높여 이번 주 안에 서류를 준비하는 게 안전합니다.`);
+  if(p.grade==='A') notes.push('네 축 중 다수에서 높은 점수 — 원문을 정독하고 자기소개서에 감사/시스템 관련 경험을 앞쪽에 배치하는 걸 권합니다.');
+  if(p.grade==='D') notes.push('현재 프로필과 구조적으로 잘 안 맞는 공고입니다. 지원 자체보다 다른 공고에 시간을 쓰는 게 나을 수 있습니다.');
+  const exMatch = findMatch(p.title+p.content, EXCLUDE_KEYWORDS);
+  if(exMatch) notes.push(`'${exMatch}' 요소가 있어 감사 외 업무(딜/세무 등) 비중을 원문에서 다시 확인하세요.`);
+  if(notes.length===0) notes.push('중립적인 매칭입니다 — 원문의 세부 조직문화·본부 배치를 직접 확인해보는 걸 권합니다.');
+  return notes.join(' ');
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+}
+document.getElementById('overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='overlay') closeModal();
+});
+
+document.getElementById('years').addEventListener('input', (e)=>{
+  document.getElementById('yearsVal').textContent = e.target.value+'년';
+});
+document.querySelectorAll('#axisChips .chip').forEach(chip=>{
+  chip.addEventListener('click', (e)=>{
+    if(e.target.tagName!=='INPUT'){
+      const input = chip.querySelector('input');
+      input.checked = !input.checked;
+    }
+    chip.classList.toggle('active', chip.querySelector('input').checked);
+  });
+});
+document.getElementById('scoreBtn').addEventListener('click', runScoring);
+document.getElementById('sortSel').addEventListener('change', render);
+document.getElementById('gradeFilter').addEventListener('change', render);
+
+// ---------------------------------------------------------------------------
+// 가져오기 버튼: 로컬 서버(server.py)의 /api/kicpa 를 호출해 실시간 수집
+// 브라우저에서 index.html을 직접 열면(file://) KICPA가 CORS를 안 열어줘서
+// 직접 fetch가 막힘 — 그래서 server.py를 통해서만 동작함
+// ---------------------------------------------------------------------------
+const pullBtn = document.getElementById('pullBtn');
+const pullStatus = document.getElementById('pullStatus');
+
+pullBtn.addEventListener('click', async ()=>{
+  pullBtn.disabled = true;
+  pullBtn.textContent = '가져오는 중...';
+  pullStatus.className = 'pull-status';
+  pullStatus.textContent = 'KICPA 사이트에서 공고를 하나하나 확인하며 가져오는 중입니다. 40~60초 정도 걸릴 수 있어요...';
+
+  try{
+    const res = await fetch('/api/kicpa');
+    if(!res.ok) throw new Error('서버 응답 오류 ('+res.status+')');
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    POSTINGS = data;
+    document.getElementById('metaCount').textContent = POSTINGS.length;
+    document.getElementById('statTotal').textContent = POSTINGS.length;
+    const soonCount = POSTINGS.filter(p=>{const d=deadlineDays(p.deadline); return d!==null && d>=0 && d<=7;}).length;
+    document.getElementById('statSoon').textContent = soonCount;
+
+    pullStatus.className = 'pull-status ok';
+    pullStatus.textContent = `완료 — ${POSTINGS.length}건 가져왔습니다 (마감분 자동 제외). 아래 프로필로 자동 채점했습니다.`;
+
+    runScoring();
+  } catch(err){
+    pullStatus.className = 'pull-status error';
+    pullStatus.textContent = '가져오기 실패: ' + err.message + ' — server.py를 먼저 실행하고 http://localhost:8642 로 접속했는지 확인하세요.';
+  } finally {
+    pullBtn.disabled = false;
+    pullBtn.textContent = '한공회 구인공고 가져오기';
+  }
+});
+
+// 초기 상태: 0건, 채점 대기
+document.getElementById('metaCount').textContent = '0';
+document.getElementById('statTotal').textContent = '0';
+document.getElementById('statSoon').textContent = '0';
+document.getElementById('statA').textContent = '0';
+document.getElementById('statScored').textContent = '0';
+render();
+</script>
+</body>
+</html>
