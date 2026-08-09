@@ -94,7 +94,9 @@ function keywordMatches(text, keyword){
   if(!kw) return false;
   if(/^[a-zA-Z0-9]+$/.test(kw)){
     const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(`(?<![a-zA-Z0-9])${escaped}(?![a-zA-Z0-9])`, 'i');
+    // 앞에 마침표(.)가 오는 것도 막음 — "sunmin.ai" 같은 이메일/도메인 확장자
+    // 오탐 방지 (실제 사례: 선민회계법인 이메일이 sun@sunmin.ai)
+    const re = new RegExp(`(?<![a-zA-Z0-9.])${escaped}(?![a-zA-Z0-9])`, 'i');
     return re.test(text);
   }
   return text.toLowerCase().includes(kw.toLowerCase());
@@ -117,8 +119,12 @@ const AUDIT_KEYWORDS = ["회계감사","감사본부","Audit","감사부문","�
 const EXCLUDE_KEYWORDS = ["가치평가","Valuation","M&A","FDD","재무실사","세무","Tax","개업","반개업","독립개업","기장","컨설턴트","자문"];
 const BIG4 = ["삼일","삼정","안진","딜로이트","EY","한영","KPMG"];
 
+// 영문 키워드는 단어 경계를 지켜 매칭 (AICPA 안의 "AI", gmail 안의 "ai" 같은
+// 오탐 방지). 태그 분류·경력추론·전략메모 등 키워드 매칭이 필요한 모든 곳에서
+// 이 함수 하나로 통일 — keywordMatches는 아래에서 정의되지만 function 선언이라
+// 호이스팅되어 순서 상관없이 여기서 바로 쓸 수 있음.
 function findMatch(text, list){
-  return list.find(k => text.includes(k)) || null;
+  return list.find(k => keywordMatches(text, k)) || null;
 }
 
 // innerHTML에 원문을 그대로 넣으면 < > & 같은 문자가 HTML로 오인식될 수 있어 이스케이프.
