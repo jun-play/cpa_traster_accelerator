@@ -333,7 +333,7 @@ pullBtn.addEventListener('click', async ()=>{
   pullBtn.disabled = true;
   pullBtn.textContent = '가져오는 중...';
   pullStatus.className = 'pull-status';
-  pullStatus.textContent = 'KICPA 사이트에서 공고를 하나하나 확인하며 가져오는 중입니다. 40~60초 정도 걸릴 수 있어요...';
+  pullStatus.textContent = 'KICPA·KIFRS 공고를 하나하나 확인하며 가져오는 중입니다. 1분~1분 30초 정도 걸릴 수 있어요...';
 
   try{
     const res = await fetch('/api/kicpa');
