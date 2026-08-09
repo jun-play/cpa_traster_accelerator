@@ -3,6 +3,18 @@
 <style>
 :root{--bg:#f7f8fb;--panel:#fff;--text:#171a21;--muted:#6b7280;--line:#e6e9ef;--accent:#4f46e5;--accent-soft:#eef2ff;--green:#0f9f6e;--green-soft:#eaf9f3;--amber:#b7791f;--amber-soft:#fff7e6;--red:#c2414d;--shadow:0 10px 35px rgba(20,28,45,.06)}*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--text);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}button,select,input{font:inherit}.topbar{height:66px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--text);color:white;display:grid;place-items:center;font-weight:800;font-size:.86rem}.brand-copy strong{display:block;font-size:.98rem}.brand-copy span{display:block;color:var(--muted);font-size:.72rem;margin-top:2px}.primary-btn{border:0;border-radius:10px;padding:9px 13px;background:var(--text);color:#fff;font-weight:800;cursor:pointer;font-size:.82rem}.page{max-width:1400px;margin:0 auto;padding:30px 32px 60px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}.hero h1{margin:0 0 8px;font-size:2rem;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);line-height:1.6;max-width:760px;font-size:.94rem}.hero-status{text-align:right;color:var(--muted);font-size:.78rem;line-height:1.55}.hero-status strong{color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}.stat-card span{display:block;color:var(--muted);font-size:.75rem;margin-bottom:8px}.stat-card strong{font-size:1.55rem;letter-spacing:-.04em}.profile-strip,.pullbar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.profile-label{font-size:.74rem;color:var(--muted);font-weight:800;margin-right:2px}.profile-pill{border:1px solid var(--line);background:#fafbfc;border-radius:999px;padding:7px 10px;font-size:.77rem;color:#343946;display:flex;align-items:center;gap:6px}.profile-pill input{accent-color:var(--accent)}.profile-spacer{flex:1}.profile-inline{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}.profile-inline select{border:1px solid var(--line);background:white;border-radius:9px;padding:7px 9px}.profile-inline input[type=range]{width:110px}.btn-pull{border:0;background:var(--text);color:white;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.8rem;cursor:pointer}.btn-pull:disabled{opacity:.55}.pull-status{font-size:.78rem;color:var(--muted)}.pull-status.ok{color:var(--green)}.pull-status.error{color:var(--red);font-weight:700}.toolbar{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px}.toolbar-left{color:var(--muted);font-size:.82rem}.toolbar-left strong{color:var(--text)}.toolbar-right{display:flex;gap:8px}.toolbar select{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 10px;color:var(--text)}.job-list{display:flex;flex-direction:column;gap:10px}.job-card{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:20px;cursor:pointer;transition:.16s ease}.job-card:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:#d7dce5}.job-topline{display:flex;justify-content:space-between;gap:14px}.company{color:var(--muted);font-size:.77rem;font-weight:700;margin-bottom:6px}.job-card h3{margin:0;font-size:1rem;line-height:1.45;letter-spacing:-.018em}.match-score{min-width:70px;text-align:right;white-space:nowrap}.match-score strong{font-size:1.32rem}.match-score span{font-size:.7rem;color:var(--muted);margin-left:2px}.fit-high,.fit-high strong{color:var(--green)}.fit-mid,.fit-mid strong{color:var(--accent)}.fit-low,.fit-low strong{color:var(--amber)}.fit-dim,.fit-dim strong{color:#9aa1ad}.job-meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.74rem;margin-top:10px}.job-meta span::after{content:"·";margin-left:8px;color:#c6cad2}.job-meta span:last-child::after{content:""}.deadline.soon{color:var(--red);font-weight:800}.decision-row{display:flex;align-items:flex-start;gap:10px;margin-top:13px}.decision{flex:0 0 auto;border-radius:999px;padding:5px 8px;font-size:.7rem;font-weight:800;background:#f2f3f5}.decision.fit-high{background:var(--green-soft)}.decision.fit-mid{background:var(--accent-soft)}.decision.fit-low{background:var(--amber-soft)}.decision-row p{margin:3px 0 0;font-size:.79rem;color:#4f5664;line-height:1.45}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.tag{font-size:.68rem;color:#5f6674;background:#f6f7f9;border:1px solid #eceef2;border-radius:8px;padding:5px 7px}.job-side{border-left:1px solid var(--line);display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:10px}.fit-copy{font-size:.75rem;color:var(--muted);font-weight:700}.detail-btn{border:0;background:transparent;color:var(--accent);font-weight:800;font-size:.8rem;cursor:pointer}.empty{background:white;border:1px dashed #d9dde5;border-radius:16px;padding:50px 20px;text-align:center;color:var(--muted)}.overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,.34);z-index:100;justify-content:flex-end}.overlay.open{display:flex}.modal{width:min(720px,92vw);height:100%;overflow:auto;background:white;padding:30px 30px 46px;box-shadow:-12px 0 50px rgba(17,24,39,.12);position:relative}.close{position:absolute;right:22px;top:18px;border:0;background:#f4f5f7;border-radius:50%;width:34px;height:34px;font-size:1.25rem;cursor:pointer}.drawer-kicker{font-size:.72rem;color:var(--accent);font-weight:900;margin-bottom:12px}.drawer-head{display:flex;justify-content:space-between;gap:20px;padding-right:50px;margin-bottom:24px}.drawer-head h2{font-size:1.38rem;margin:0 0 8px;line-height:1.4;letter-spacing:-.035em}.drawer-meta{color:var(--muted);font-size:.79rem}.source-link{display:inline-block;margin-top:10px;font-size:.79rem;font-weight:800;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)}.source-link:hover{opacity:.75}.drawer-score strong{font-size:2rem}.drawer-score span{font-size:.78rem;color:var(--muted);margin-left:3px}.modal section{margin-top:24px}.modal h4{font-size:.82rem;margin:0 0 12px}.insight-box{background:#f8f9fc;border:1px solid var(--line);border-radius:14px;padding:14px 16px}.insight-box p{margin:6px 0 0;line-height:1.55;font-size:.85rem}.section-label{font-size:.69rem;color:var(--muted);font-weight:800}.section-title-row{display:flex;justify-content:space-between;align-items:center}.section-title-row span{font-size:.69rem;color:var(--muted)}.axis-block{margin-bottom:14px}.axis-head{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:6px}.axis-track{height:6px;background:#edf0f4;border-radius:999px;overflow:hidden}.axis-fill{height:100%;background:var(--accent)}.axis-block p{margin:5px 0 0;font-size:.73rem;color:var(--muted);line-height:1.45}.body-copy{font-size:.83rem;color:#4b5260;line-height:1.7;margin:0}.source-copy{background:#fafbfc;border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;word-break:break-word}
 .filter-toggle{border:1px solid var(--line);background:#fafbfc;border-radius:10px;padding:8px 10px;font-size:.78rem;color:#343946;cursor:pointer}
+.btn-export{border:0;background:var(--text);color:#fff;border-radius:10px;padding:8px 12px;font-size:.78rem;font-weight:800;cursor:pointer}
+.export-intro{font-size:.82rem;color:#4b5260;line-height:1.6;margin:0 0 14px}
+.export-field label{display:block;font-size:.74rem;color:var(--muted);font-weight:800;margin-bottom:6px}
+.export-field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:.83rem;font-family:inherit;background:#fafbfc;resize:vertical}
+.export-field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.export-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.export-actions button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 14px;font-size:.8rem;font-weight:800;cursor:pointer;color:var(--text)}
+.export-actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.export-copy-status{font-size:.76rem;color:var(--green);margin-top:8px;font-weight:700;min-height:1em}
+.export-preview{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.export-preview summary{cursor:pointer;font-size:.78rem;color:var(--muted);font-weight:800}
+.export-preview pre{white-space:pre-wrap;word-break:break-word;font-size:.72rem;color:#4b5260;background:#fafbfc;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px;max-height:280px;overflow:auto}
 .filter-toggle.active{border-color:#b7791f;background:#fff7e6;color:#8a5b0f;font-weight:800}
 .job-side{position:relative}
 .card-icon-row{display:flex;gap:6px;margin-bottom:8px}
@@ -33,7 +45,7 @@
 .facet-count{color:var(--muted);font-size:.7rem}
 .facet-item.checked .facet-count{color:var(--accent)}
 footer{max-width:1400px;margin:0 auto;padding:0 32px 34px;color:#9aa1ad;font-size:.7rem;line-height:1.7}@media(max-width:900px){.topbar{padding:0 16px}.page{padding:24px 16px 50px}.hero{display:block}.hero-status{text-align:left;margin-top:12px}.stats{grid-template-columns:repeat(2,1fr)}.profile-spacer{display:none}.job-card{grid-template-columns:1fr}.job-side{border-left:0;border-top:1px solid var(--line);padding-top:12px;align-items:flex-start}}
-</style></head><body><header class="topbar"><div class="brand"><div class="brand-mark">CPA</div><div class="brand-copy"><strong>Career OS</strong><span>회계사 이직 의사결정 도구</span></div></div></header><main class="page"><section class="hero"><div><h1>수많은 공고 중, 조건에 맞는 것만.</h1><p>지역·경력·채용유형별로 나눠서 보여드립니다. 판단은 원문을 직접 읽고 하시면 됩니다.</p></div><div class="hero-status">SOURCE <strong>KICPA 구인(CPA) 6개 게시판 · KIFRS.com</strong><br><span id="metaCount">0</span>건 수집 대상</div></section><section class="stats"><div class="stat-card"><span>전체 공고</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>7일 내 마감</span><strong id="statSoon">0</strong></div><div class="stat-card"><span>수집 완료</span><strong id="statScored">0</strong></div></section><section class="pullbar"><button class="btn-pull" id="pullBtn">공고 업데이트</button><span class="pull-status" id="pullStatus">아직 공고를 가져오지 않았습니다. 업데이트를 누르면 KICPA·KIFRS 공고 원문을 확인해 분석합니다.</span></section><section class="keyword-panel" id="keywordPanel" style="display:none"><div class="kw-row"><div class="kw-field"><label for="keywordInclude">포함 키워드</label><input type="text" id="keywordInclude" placeholder="예: 세무, IPO, 상장사"></div><div class="kw-field"><label for="keywordExclude">제외 키워드</label><input type="text" id="keywordExclude" placeholder="예: 개업, 기장"></div></div><p class="kw-hint">쉼표(,)로 여러 개 입력 가능 · 제목+본문 기준으로 찾음</p></section><section class="facet-panel" id="facetPanel" style="display:none"></section><div class="toolbar"><div class="toolbar-left">총 <strong id="visibleCount">0</strong>건</div><div class="toolbar-right"><button class="filter-toggle" id="favOnlyBtn" type="button">★ 즐겨찾기만 <span id="favCount">0</span></button><button class="filter-toggle" id="dismissResetBtn" type="button" style="display:none">숨김 <span id="dismissCount">0</span>건 · 초기화</button><select id="sortSel"><option value="posted">최신 공고 순</option><option value="deadline">마감 임박 순</option><option value="company">회사명 순</option></select></div></div><div class="job-list" id="cardGrid"></div><div class="empty" id="emptyMsg" style="display:none"></div></main><footer>CPA Career OS prototype · 실제 지원 전 공고 원문과 채용조건을 반드시 확인하세요.<br>Founded by 현준 · Since 2026.08.09</footer><div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div><script>
+</style></head><body><header class="topbar"><div class="brand"><div class="brand-mark">CPA</div><div class="brand-copy"><strong>Career OS</strong><span>회계사 이직 의사결정 도구</span></div></div></header><main class="page"><section class="hero"><div><h1>수많은 공고 중, 조건에 맞는 것만.</h1><p>지역·경력·채용유형별로 나눠서 보여드립니다. 판단은 원문을 직접 읽고 하시면 됩니다.</p></div><div class="hero-status">SOURCE <strong>KICPA 구인(CPA) 6개 게시판 · KIFRS.com</strong><br><span id="metaCount">0</span>건 수집 대상</div></section><section class="stats"><div class="stat-card"><span>전체 공고</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>7일 내 마감</span><strong id="statSoon">0</strong></div><div class="stat-card"><span>수집 완료</span><strong id="statScored">0</strong></div></section><section class="pullbar"><button class="btn-pull" id="pullBtn">공고 업데이트</button><span class="pull-status" id="pullStatus">아직 공고를 가져오지 않았습니다. 업데이트를 누르면 KICPA·KIFRS 공고 원문을 확인해 분석합니다.</span></section><section class="keyword-panel" id="keywordPanel" style="display:none"><div class="kw-row"><div class="kw-field"><label for="keywordInclude">포함 키워드</label><input type="text" id="keywordInclude" placeholder="예: 세무, IPO, 상장사"></div><div class="kw-field"><label for="keywordExclude">제외 키워드</label><input type="text" id="keywordExclude" placeholder="예: 개업, 기장"></div></div><p class="kw-hint">쉼표(,)로 여러 개 입력 가능 · 제목+본문 기준으로 찾음</p></section><section class="facet-panel" id="facetPanel" style="display:none"></section><div class="toolbar"><div class="toolbar-left">총 <strong id="visibleCount">0</strong>건</div><div class="toolbar-right"><button class="btn-export" id="exportBtn" type="button">AI로 분석하기 ↗</button><button class="filter-toggle" id="favOnlyBtn" type="button">★ 즐겨찾기만 <span id="favCount">0</span></button><button class="filter-toggle" id="dismissResetBtn" type="button" style="display:none">숨김 <span id="dismissCount">0</span>건 · 초기화</button><select id="sortSel"><option value="posted">최신 공고 순</option><option value="deadline">마감 임박 순</option><option value="company">회사명 순</option></select></div></div><div class="job-list" id="cardGrid"></div><div class="empty" id="emptyMsg" style="display:none"></div></main><footer>CPA Career OS prototype · 실제 지원 전 공고 원문과 채용조건을 반드시 확인하세요.<br>Founded by 현준 · Since 2026.08.09</footer><div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div><script>
 let POSTINGS = [];
 
 // ---------------------------------------------------------------------------
@@ -113,6 +125,7 @@ function matchesKeywordFilter(p){
   if(excludeList.length && excludeList.some(k => keywordMatches(text, k))) return false;
   return true;
 }
+
 
 const ROUND1_KEYWORDS = ["Innovation","혁신","AI 신사업","AI Agent","디지털 감사","Digital Audit","자동화","Tech Lead","System","데이터 분석","AI활용","AI Agent","AI"];
 const AUDIT_KEYWORDS = ["회계감사","감사본부","Audit","감사부문","감사팀","외부감사"];
@@ -365,6 +378,8 @@ function renderFacetPanel(){
   });
 }
 
+let currentVisibleList = [];
+
 function render(){
   const sortSel = document.getElementById('sortSel').value;
   let list = viewData.slice();
@@ -380,6 +395,7 @@ function render(){
   if(sortSel==='deadline') list.sort((a,b)=>(a.days??999)-(b.days??999));
   else if(sortSel==='company') list.sort((a,b)=>a.company.localeCompare(b.company,'ko'));
   else if(sortSel==='posted') list.sort((a,b)=>(parseDateStr(b.posted)??0)-(parseDateStr(a.posted)??0));
+  currentVisibleList = list; // "AI로 분석하기"가 지금 화면에 보이는 것 그대로 내보낼 수 있도록 저장
   document.getElementById('visibleCount').textContent = list.length;
   document.getElementById('favCount').textContent = favorites.size;
   const dismissBtn = document.getElementById('dismissResetBtn');
@@ -463,6 +479,99 @@ document.getElementById('overlay').addEventListener('click', (e)=>{
   if(e.target.id==='overlay') closeModal();
 });
 
+// ---------------------------------------------------------------------------
+// "AI로 분석하기" — 지금 화면에 보이는 필터링 결과를 마크다운으로 정리해서
+// 사용자가 평소 쓰는 GPT/Claude 채팅창에 직접 붙여넣을 수 있게 함.
+// 서버에는 아무것도 안 보냄 — 순전히 브라우저 안에서 텍스트만 조립.
+// ---------------------------------------------------------------------------
+function todayStr(){
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function defaultPromptTemplate(){
+  return `아래는 회계사 채용공고 목록이야. 내 경력과 선호를 기준으로 분석해줘.
+
+나는 현재 [여기에 본인 경력·상황을 적어주세요]이고,
+중요하게 생각하는 것은 [여기에 우선순위를 적어주세요]야.
+
+각 공고를 적극지원 / 검토 / 제외로 나누고, 이유와 지원 전 확인할 사항을 알려줘.`;
+}
+
+function buildMarkdownExport(list){
+  const lines = [`# CPA Career OS — 공고 내보내기 (${todayStr()}, ${list.length}건)`, ''];
+  list.forEach((p, i) => {
+    lines.push(`## ${i+1}. ${p.company} — ${p.title}`);
+    lines.push(`- 게시판: ${p.source_tab || '-'}`);
+    lines.push(`- 지역: ${p.region || '미상'}`);
+    lines.push(`- 경력: ${p.expInfo.display}`);
+    lines.push(`- 등록일: ${p.posted || '미상'}`);
+    lines.push(`- 마감일: ${p.deadline || '상시채용'}`);
+    lines.push(`- 분류: ${p.tags.join(', ')}`);
+    lines.push(`- 원문링크: ${p.url || '-'}`);
+    lines.push(`- 본문:`);
+    lines.push('```');
+    lines.push(p.content || '(본문 없음)');
+    lines.push('```');
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+function openExportModal(){
+  const modal = document.getElementById('modalBody');
+  const n = currentVisibleList.length;
+  modal.innerHTML = `
+    <button class="close" id="closeBtn" aria-label="닫기">×</button>
+    <div class="drawer-kicker">AI로 분석하기</div>
+    <h2 style="margin:0 0 10px">지금 보이는 ${n}건을 내 AI 채팅창으로</h2>
+    <p class="export-intro">아래 프롬프트를 원하는 대로 고친 다음 "전체 복사"를 누르고, 평소 쓰는 GPT나 Claude 채팅창에 붙여넣으세요. 서버에는 아무것도 전송되지 않습니다 — 이 브라우저 안에서만 텍스트가 만들어집니다.</p>
+    <div class="export-field">
+      <label for="exportPrompt">프롬프트 (자유롭게 수정 가능)</label>
+      <textarea id="exportPrompt" rows="6">${defaultPromptTemplate()}</textarea>
+    </div>
+    <div class="export-actions">
+      <button class="primary" id="copyAllBtn" type="button">전체 복사 (프롬프트+공고)</button>
+      <button id="downloadMdBtn" type="button">.md 파일로 다운로드</button>
+    </div>
+    <div class="export-copy-status" id="exportCopyStatus"></div>
+    <details class="export-preview">
+      <summary>공고 목록 미리보기 (${n}건)</summary>
+      <pre id="exportPreview"></pre>
+    </details>`;
+
+  document.getElementById('closeBtn').addEventListener('click', closeModal);
+  document.getElementById('exportPreview').textContent = buildMarkdownExport(currentVisibleList);
+
+  document.getElementById('copyAllBtn').addEventListener('click', async ()=>{
+    const promptText = document.getElementById('exportPrompt').value;
+    const fullText = promptText + '\n\n---\n\n' + buildMarkdownExport(currentVisibleList);
+    const statusEl = document.getElementById('exportCopyStatus');
+    try{
+      await navigator.clipboard.writeText(fullText);
+      statusEl.textContent = '복사됐습니다 — 이제 GPT나 Claude 채팅창에 붙여넣으세요.';
+    } catch(e){
+      statusEl.textContent = '복사 실패 — 아래 미리보기에서 직접 선택해 복사해주세요.';
+    }
+  });
+
+  document.getElementById('downloadMdBtn').addEventListener('click', ()=>{
+    const promptText = document.getElementById('exportPrompt').value;
+    const fullText = promptText + '\n\n---\n\n' + buildMarkdownExport(currentVisibleList);
+    const blob = new Blob([fullText], {type: 'text/markdown;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cpa-career-os-${todayStr()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('overlay').classList.add('open');
+}
+
 document.getElementById('sortSel').addEventListener('change', render);
 document.getElementById('favOnlyBtn').addEventListener('click', ()=>{
   showFavOnly = !showFavOnly;
@@ -472,6 +581,7 @@ document.getElementById('favOnlyBtn').addEventListener('click', ()=>{
 document.getElementById('dismissResetBtn').addEventListener('click', resetDismissed);
 document.getElementById('keywordInclude').addEventListener('input', render);
 document.getElementById('keywordExclude').addEventListener('input', render);
+document.getElementById('exportBtn').addEventListener('click', openExportModal);
 
 // ---------------------------------------------------------------------------
 // 가져오기 버튼: 로컬 서버(server.py)의 /api/kicpa 를 호출해 실시간 수집
