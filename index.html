@@ -18,7 +18,7 @@
 .facet-count{color:var(--muted);font-size:.7rem}
 .facet-item.checked .facet-count{color:var(--accent)}
 footer{max-width:1400px;margin:0 auto;padding:0 32px 34px;color:#9aa1ad;font-size:.7rem;line-height:1.7}@media(max-width:900px){.topbar{padding:0 16px}.page{padding:24px 16px 50px}.hero{display:block}.hero-status{text-align:left;margin-top:12px}.stats{grid-template-columns:repeat(2,1fr)}.profile-spacer{display:none}.job-card{grid-template-columns:1fr}.job-side{border-left:0;border-top:1px solid var(--line);padding-top:12px;align-items:flex-start}}
-</style></head><body><header class="topbar"><div class="brand"><div class="brand-mark">CPA</div><div class="brand-copy"><strong>Career OS</strong><span>회계사 이직 의사결정 도구</span></div></div></header><main class="page"><section class="hero"><div><h1>수많은 공고 중, 나에게 맞는 기회만.</h1><p>경력과 선호를 기준으로 채용공고를 분석하고, 왜 나에게 맞는지까지 함께 보여드립니다.</p></div><div class="hero-status">SOURCE <strong>KICPA 구인(CPA) 6개 게시판 · KIFRS.com</strong><br><span id="metaCount">0</span>건 분석 대상</div></section><section class="stats"><div class="stat-card"><span>전체 공고</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>Strong fit</span><strong id="statA">0</strong></div><div class="stat-card"><span>7일 내 마감</span><strong id="statSoon">0</strong></div><div class="stat-card"><span>분석 완료</span><strong id="statScored">0</strong></div></section><section class="pullbar"><button class="btn-pull" id="pullBtn">공고 업데이트</button><span class="pull-status" id="pullStatus">아직 공고를 가져오지 않았습니다. 업데이트를 누르면 KICPA·KIFRS 공고 원문을 확인해 분석합니다.</span></section><section class="facet-panel" id="facetPanel" style="display:none"></section><div class="toolbar"><div class="toolbar-left">총 <strong id="visibleCount">0</strong>건</div><div class="toolbar-right"><select id="sortSel"><option value="score">적합도 높은 순</option><option value="deadline">마감 임박 순</option><option value="company">회사명 순</option></select><select id="gradeFilter"><option value="">전체</option><option value="A">Strong fit만</option><option value="B">Explore 이상</option><option value="C">Possible 이상</option></select></div></div><div class="job-list" id="cardGrid"></div><div class="empty" id="emptyMsg" style="display:none"></div></main><footer>CPA Career OS prototype · 실제 지원 전 공고 원문과 채용조건을 반드시 확인하세요.<br>Founded by 현준 · Since 2026.08.09</footer><div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div><script>
+</style></head><body><header class="topbar"><div class="brand"><div class="brand-mark">CPA</div><div class="brand-copy"><strong>Career OS</strong><span>회계사 이직 의사결정 도구</span></div></div></header><main class="page"><section class="hero"><div><h1>수많은 공고 중, 조건에 맞는 것만.</h1><p>지역·경력·채용유형별로 나눠서 보여드립니다. 판단은 원문을 직접 읽고 하시면 됩니다.</p></div><div class="hero-status">SOURCE <strong>KICPA 구인(CPA) 6개 게시판 · KIFRS.com</strong><br><span id="metaCount">0</span>건 수집 대상</div></section><section class="stats"><div class="stat-card"><span>전체 공고</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>7일 내 마감</span><strong id="statSoon">0</strong></div><div class="stat-card"><span>수집 완료</span><strong id="statScored">0</strong></div></section><section class="pullbar"><button class="btn-pull" id="pullBtn">공고 업데이트</button><span class="pull-status" id="pullStatus">아직 공고를 가져오지 않았습니다. 업데이트를 누르면 KICPA·KIFRS 공고 원문을 확인해 분석합니다.</span></section><section class="facet-panel" id="facetPanel" style="display:none"></section><div class="toolbar"><div class="toolbar-left">총 <strong id="visibleCount">0</strong>건</div><div class="toolbar-right"><select id="sortSel"><option value="deadline">마감 임박 순</option><option value="company">회사명 순</option></select></div></div><div class="job-list" id="cardGrid"></div><div class="empty" id="emptyMsg" style="display:none"></div></main><footer>CPA Career OS prototype · 실제 지원 전 공고 원문과 채용조건을 반드시 확인하세요.<br>Founded by 현준 · Since 2026.08.09</footer><div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div><script>
 let POSTINGS = [];
 
 const ROUND1_KEYWORDS = ["Innovation","혁신","AI 신사업","AI Agent","디지털 감사","Digital Audit","자동화","Tech Lead","System","데이터 분석","AI활용","AI Agent","AI"];
@@ -43,49 +43,6 @@ function parseExperienceRange(expStr){
   return null;
 }
 
-function scorePosting(p){
-  const text = (p.title + " " + p.content);
-  const axes = [];
-
-  // 축1: System/AI 레버리지 (0~40) — 매칭되면 그대로 만점, on/off 토글 없음
-  let r1 = 0, r1Reason = "관련 키워드 없음";
-  const r1match = findMatch(text, ROUND1_KEYWORDS);
-  if(r1match){
-    r1 = 40;
-    r1Reason = `'${r1match}' 키워드 확인`;
-  }
-  axes.push({label:"System/AI 레버리지", score:r1, max:40, reason:r1Reason});
-
-  // 축2: 감사유지 적합성 (0~40)
-  let r2 = 0, r2Reason = "감사 키워드 없음 또는 딜/세무 혼재";
-  const auditMatch = findMatch(text, AUDIT_KEYWORDS);
-  const exMatch = findMatch(text, EXCLUDE_KEYWORDS);
-  if(auditMatch && !exMatch){
-    r2 = 40;
-    r2Reason = `'${auditMatch}' 명시, 딜/세무성 키워드 없음`;
-  } else if(exMatch){
-    r2Reason = `'${exMatch}' 포함되어 순수감사 아님`;
-  }
-  axes.push({label:"감사유지 적합성", score:r2, max:40, reason:r2Reason});
-
-  // 축3: Big4 (0~20) — 지역·경력·소속은 '상세 필터'가 이미 하드 필터로 처리
-  const isBig4 = BIG4.some(b => p.company.includes(b));
-  const r3 = isBig4 ? 20 : 8;
-  const r3Reason = isBig4 ? "Big4 소속 확인" : "비Big4";
-  axes.push({label:"Big4 여부", score:r3, max:20, reason:r3Reason});
-
-  const total = axes.reduce((s,a)=>s+a.score,0);
-  let grade = "D";
-  if(total>=80) grade="A";
-  else if(total>=60) grade="B";
-  else if(total>=40) grade="C";
-
-  const topAxis = axes.slice().sort((a,b)=>b.score-a.score)[0];
-  const oneLiner = `${topAxis.label} 축에서 가장 강함 — ${topAxis.reason}`;
-
-  return {total, grade, axes, oneLiner};
-}
-
 function deadlineDays(deadlineStr){
   const m = deadlineStr.match(/(\d{4})\.(\d{2})\.(\d{2})/);
   if(!m) return null;
@@ -95,32 +52,15 @@ function deadlineDays(deadlineStr){
   return Math.round((d-today)/(1000*60*60*24));
 }
 
-let scoredData = [];
+let viewData = [];
 
-function runScoring(){
-  scoredData = POSTINGS.map(p => {
-    const result = scorePosting(p);
-    return Object.assign({}, p, result, {days: deadlineDays(p.deadline)});
-  });
-  document.getElementById('statScored').textContent = scoredData.length;
-  document.getElementById('statA').textContent = scoredData.filter(p=>p.grade==='A').length;
+function processData(){
+  viewData = POSTINGS.map(p => Object.assign({}, p, {
+    days: deadlineDays(p.deadline),
+    tags: typeBuckets(p),
+  }));
+  document.getElementById('statScored').textContent = viewData.length;
   render();
-}
-
-function fitLabel(p){
-  if(p.grade === 'A') return 'Strong fit';
-  if(p.grade === 'B') return 'Explore';
-  if(p.grade === 'C') return 'Possible';
-  return 'Low fit';
-}
-function actionLabel(p){
-  if(p.grade === 'A') return '지원 추천';
-  if(p.grade === 'B') return '검토 추천';
-  if(p.grade === 'C') return '조건부 검토';
-  return '우선순위 낮음';
-}
-function gradeClass(grade){
-  return grade === 'A' ? 'fit-high' : grade === 'B' ? 'fit-mid' : grade === 'C' ? 'fit-low' : 'fit-dim';
 }
 
 // ---------------------------------------------------------------------------
@@ -129,10 +69,22 @@ function gradeClass(grade){
 // 카운트는 "이 그룹을 제외한 다른 선택 조건"까지 반영해서, 체크할수록
 // 남은 옵션들의 개수가 실시간으로 좁혀지도록 함 (다나와의 동적 개수 방식).
 // ---------------------------------------------------------------------------
+const REGION_ALIAS = {
+  '서울시':'서울', '서울특별시':'서울',
+  '경기도':'경기',
+  '부산시':'부산', '부산광역시':'부산',
+  '대구시':'대구', '대구광역시':'대구',
+  '인천시':'인천', '인천광역시':'인천',
+  '광주시':'광주', '광주광역시':'광주',
+  '대전시':'대전', '대전광역시':'대전',
+  '울산시':'울산', '울산광역시':'울산',
+};
 function regionBucket(region){
   if(!region) return '미상';
-  const first = region.trim().split(/\s+/)[0];
-  return first || '미상';
+  const cleaned = region.trim().replace(/^[:,.\-·\s]+/, ''); // 원본 데이터에 앞에 콜론·쉼표 등이 섞여 들어오는 경우 방지
+  const first = cleaned.split(/\s+/)[0];
+  if(!first) return '미상';
+  return REGION_ALIAS[first] || first;
 }
 function careerBucket(expStr){
   const range = parseExperienceRange(expStr);
@@ -197,13 +149,13 @@ function matchesAllFacets(p){
 
 function renderFacetPanel(){
   const panel = document.getElementById('facetPanel');
-  if(scoredData.length===0){ panel.style.display='none'; return; }
+  if(viewData.length===0){ panel.style.display='none'; return; }
   panel.style.display = 'block';
 
   const anySelected = FACET_DEFS.some(f=>selectedFacets[f.key].size>0);
 
   const groupsHtml = FACET_DEFS.map(f=>{
-    const base = scoredData.filter(p=>matchesFacetsExcept(p, f.key));
+    const base = viewData.filter(p=>matchesFacetsExcept(p, f.key));
     const counts = {};
     base.forEach(p=>{ f.extract(p).forEach(v=> counts[v]=(counts[v]||0)+1); });
 
@@ -247,14 +199,9 @@ function renderFacetPanel(){
 
 function render(){
   const sortSel = document.getElementById('sortSel').value;
-  const gradeFilter = document.getElementById('gradeFilter').value;
-  let list = scoredData.slice();
-  if(gradeFilter === 'A') list = list.filter(p=>p.grade==='A');
-  else if(gradeFilter === 'B') list = list.filter(p=>['A','B'].includes(p.grade));
-  else if(gradeFilter === 'C') list = list.filter(p=>['A','B','C'].includes(p.grade));
+  let list = viewData.slice();
   list = list.filter(matchesAllFacets);
-  if(sortSel==='score') list.sort((a,b)=>b.total-a.total);
-  else if(sortSel==='deadline') list.sort((a,b)=>(a.days??999)-(b.days??999));
+  if(sortSel==='deadline') list.sort((a,b)=>(a.days??999)-(b.days??999));
   else if(sortSel==='company') list.sort((a,b)=>a.company.localeCompare(b.company,'ko'));
   document.getElementById('visibleCount').textContent = list.length;
   const noData = POSTINGS.length === 0;
@@ -268,44 +215,39 @@ function render(){
     card.className = 'job-card';
     const soon = p.days!==null && p.days>=0 && p.days<=7;
     const deadlineText = p.days!==null ? (p.days<0 ? '마감' : p.days===0 ? '오늘 마감' : `D-${p.days}`) : (p.deadline || '마감일 미상');
-    const axisTags = p.axes.filter(a => a.score >= Math.max(14, a.max*0.55)).slice(0,3).map(a => `<span class="tag">${a.label}</span>`).join('');
+    const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
     card.innerHTML = `
       <div class="job-main">
         <div class="job-topline">
           <div><div class="company">${p.company}${p.company_type?(' · '+p.company_type):''}</div><h3>${p.title}</h3></div>
-          <div class="match-score ${gradeClass(p.grade)}"><strong>${p.total}</strong><span>/100</span></div>
         </div>
-        <div class="job-meta"><span>${p.region||'지역 미상'}</span><span>경력 ${p.experience||'미상'}</span><span class="${soon?'deadline soon':'deadline'}">${deadlineText}</span></div>
-        <div class="decision-row"><span class="decision ${gradeClass(p.grade)}">${actionLabel(p)}</span><p>${p.oneLiner}</p></div>
-        <div class="tags">${axisTags}</div>
+        <div class="job-meta"><span>${p.source_tab||''}</span><span>${p.region||'지역 미상'}</span><span>경력 ${p.experience||'미상'}</span><span class="${soon?'deadline soon':'deadline'}">${deadlineText}</span></div>
+        <div class="tags">${tagsHtml}</div>
       </div>
-      <div class="job-side"><span class="fit-copy">${fitLabel(p)}</span><button class="detail-btn" type="button">상세 보기</button></div>`;
+      <div class="job-side"><button class="detail-btn" type="button">상세 보기 →</button></div>`;
     card.addEventListener('click', ()=>openModal(p));
     grid.appendChild(card);
   });
 }
 function openModal(p){
   const modal = document.getElementById('modalBody');
-  const axisHtml = p.axes.map(a=>`<div class="axis-block"><div class="axis-head"><span>${a.label}</span><strong>${a.score}/${a.max}</strong></div><div class="axis-track"><div class="axis-fill" style="width:${(a.score/a.max*100)}%"></div></div><p>${a.reason}</p></div>`).join('');
   const sourceLink = p.url
-    ? `<a class="source-link" href="${p.url}" target="_blank" rel="noopener noreferrer">한공회 원문 공고 열기 ↗</a>`
+    ? `<a class="source-link" href="${p.url}" target="_blank" rel="noopener noreferrer">원문 공고 열기 ↗</a>`
     : '';
+  const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
   modal.innerHTML = `
     <button class="close" id="closeBtn" aria-label="닫기">×</button>
-    <div class="drawer-kicker">${actionLabel(p)} · ${fitLabel(p)}</div>
-    <div class="drawer-head"><div><div class="company">${p.company}</div><h2>${p.title}</h2><div class="drawer-meta">${p.region||'지역 미상'} · 경력 ${p.experience||'미상'} · 마감 ${p.deadline||'미상'}</div>${sourceLink}</div><div class="drawer-score ${gradeClass(p.grade)}"><strong>${p.total}</strong><span>/100</span></div></div>
-    <section class="insight-box"><span class="section-label">한 줄 판단</span><p>${p.oneLiner}</p></section>
-    <section><div class="section-title-row"><h4>적합도 분석</h4><span>규칙 기반</span></div>${axisHtml}</section>
-    <section><h4>지원 전략</h4><p class="body-copy">${strategyNote(p)}</p></section>
+    <div class="drawer-kicker">${p.source_tab||''}</div>
+    <div class="drawer-head"><div><div class="company">${p.company}</div><h2>${p.title}</h2><div class="drawer-meta">${p.region||'지역 미상'} · 경력 ${p.experience||'미상'} · 마감 ${p.deadline||'미상'}</div>${sourceLink}</div></div>
+    <section><h4>분류</h4><div class="tags">${tagsHtml}</div></section>
+    <section><h4>참고</h4><p class="body-copy">${strategyNote(p)}</p></section>
     <section><h4>공고 원문 발췌</h4><p class="body-copy source-copy">${p.content}</p></section>`;
   document.getElementById('closeBtn').addEventListener('click', closeModal);
   document.getElementById('overlay').classList.add('open');
 }
 function strategyNote(p){
   const notes = [];
-  if(p.days!==null && p.days<=7 && p.days>=0) notes.push(`마감이 ${p.days}일 남아 촉박합니다 — 우선순위를 높여 이번 주 안에 서류를 준비하는 게 안전합니다.`);
-  if(p.grade==='A') notes.push('네 축 중 다수에서 높은 점수 — 원문을 정독하고 자기소개서에 관련 경험을 앞쪽에 배치하는 걸 권합니다.');
-  if(p.grade==='D') notes.push('현재 프로필과 구조적으로 잘 안 맞는 공고입니다. 지원 자체보다 다른 공고에 시간을 쓰는 게 나을 수 있습니다.');
+  if(p.days!==null && p.days<=7 && p.days>=0) notes.push(`마감이 ${p.days}일 남아 촉박합니다 — 지원하려면 이번 주 안에 서류를 준비하는 게 안전합니다.`);
   const exMatch = findMatch(p.title+p.content, EXCLUDE_KEYWORDS);
   if(exMatch) notes.push(`'${exMatch}' 요소가 있어 감사 외 업무(딜/세무 등) 비중을 원문에서 다시 확인하세요.`);
   if(notes.length===0) notes.push('중립적인 매칭입니다 — 원문의 세부 조직문화·본부 배치를 직접 확인해보는 걸 권합니다.');
@@ -319,7 +261,6 @@ document.getElementById('overlay').addEventListener('click', (e)=>{
 });
 
 document.getElementById('sortSel').addEventListener('change', render);
-document.getElementById('gradeFilter').addEventListener('change', render);
 
 // ---------------------------------------------------------------------------
 // 가져오기 버튼: 로컬 서버(server.py)의 /api/kicpa 를 호출해 실시간 수집
@@ -352,9 +293,9 @@ pullBtn.addEventListener('click', async ()=>{
     const freshNote = payload.cached
       ? `(캐시됨 — ${payload.fetched_minutes_ago}분 전 기준, 30분마다 갱신됩니다)`
       : '(방금 새로 가져옴)';
-    pullStatus.textContent = `완료 — ${POSTINGS.length}건 ${freshNote}. 아래 프로필로 자동 채점했습니다.`;
+    pullStatus.textContent = `완료 — ${POSTINGS.length}건 ${freshNote}. 아래 필터로 조건을 좁혀보세요.`;
 
-    runScoring();
+    processData();
   } catch(err){
     pullStatus.className = 'pull-status error';
     pullStatus.textContent = '가져오기 실패: ' + err.message + ' — 서버가 켜져 있는지 확인하세요.';
@@ -364,11 +305,10 @@ pullBtn.addEventListener('click', async ()=>{
   }
 });
 
-// 초기 상태: 0건, 채점 대기
+// 초기 상태: 0건
 document.getElementById('metaCount').textContent = '0';
 document.getElementById('statTotal').textContent = '0';
 document.getElementById('statSoon').textContent = '0';
-document.getElementById('statA').textContent = '0';
 document.getElementById('statScored').textContent = '0';
 render();
 </script></body></html>
