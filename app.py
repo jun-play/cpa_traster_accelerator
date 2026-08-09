@@ -100,13 +100,28 @@ def collect_kicpa_cpa():
             if not bltn_no or bltn_no in seen_ids:
                 continue
             seen_ids.add(bltn_no)
+            posted = tds[5].get_text(strip=True) if len(tds) > 5 else ""  # 등록일자, 예: "2026.08.08"
             postings.append({
                 "bltn_no": bltn_no,
                 "title": title,
                 "company": tds[2].get_text(strip=True),
                 "region": tds[3].get_text(" ", strip=True),
+                "posted": posted,
                 "source_tab": tab_name,
             })
+
+    # 같은 회사가 같은 공고를 며칠에 걸쳐 반복 등록하는 경우가 많음(게시글번호는 매번 다름).
+    # 회사명+제목이 같으면 같은 공고로 보고, 가장 최근에 등록한 것 하나만 남김.
+    # (부수 효과: 상세페이지 요청 개수도 줄어서 더 빨라짐)
+    def dedup_key(p):
+        return (p["company"].strip(), re.sub(r"\s+", "", p["title"]))
+
+    best = {}
+    for p in postings:
+        key = dedup_key(p)
+        if key not in best or p.get("posted", "") > best[key].get("posted", ""):
+            best[key] = p
+    postings = list(best.values())
 
     def fetch_detail(p):
         p["url"] = f"https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face?ijIdNum={p['bltn_no']}"
@@ -123,8 +138,12 @@ def collect_kicpa_cpa():
             p["deadline"] = field_map.get("마감일", "")
             p["experience"] = field_map.get("경력", "")
             p["company_type"] = field_map.get("회사구분", "")
-            content = pre.get_text(" ", strip=True) if pre else ""
-            p["content"] = re.sub(r"\s{2,}", " ", content)  # 상세보기가 스크롤되는 창이라 잘라낼 필요 없음 — 전체 원문 그대로
+            content = pre.get_text("\n", strip=True) if pre else ""
+            # 줄바꿈은 살리고, 가로 공백(스페이스·탭)만 정리 + 과도한 빈 줄만 2줄로 축약
+            content = content.replace("\r\n", "\n").replace("\r", "\n")
+            content = re.sub(r"[ \t]+", " ", content)
+            content = re.sub(r"\n{3,}", "\n\n", content)
+            p["content"] = content.strip()
         except Exception:
             p["deadline"] = ""
             p["experience"] = ""
@@ -166,6 +185,10 @@ def collect_kifrs():
         if deadline:
             deadline = deadline[:10].replace("-", ".")  # "2026-08-09T..." -> "2026.08.09"
 
+        posted = rec.get("creationTime") or ""
+        if posted:
+            posted = posted[:10].replace("-", ".")  # "2026-07-30T..." -> "2026.07.30"
+
         postings.append({
             "bltn_no": f"kifrs_{rec.get('id')}",
             "title": rec.get("title") or "",
@@ -176,7 +199,8 @@ def collect_kifrs():
             "company_type": "",
             "content": content,
             "url": rec.get("applicationUrl") or "https://www.kifrs.com/jobs",
-            "source_tab": "KIFRS",
+            "posted": posted,
+            "source_tab": "일반기업",  # KIFRS도 성격상 사내 재무직이라 KICPA의 '일반기업' 카테고리로 통합
         })
 
     return [p for p in postings if not is_expired(p.get("deadline", ""))]
@@ -193,7 +217,14 @@ def collect_all_sources():
         all_postings.extend(collect_kifrs())
     except Exception:
         pass
-    return all_postings
+
+    # 두 소스를 합친 뒤에도 회사명+제목 기준으로 한 번 더 안전하게 중복 제거
+    best = {}
+    for p in all_postings:
+        key = (p.get("company", "").strip(), re.sub(r"\s+", "", p.get("title", "")))
+        if key not in best or p.get("posted", "") > best[key].get("posted", ""):
+            best[key] = p
+    return list(best.values())
 
 
 @app.route("/")
