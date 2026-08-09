@@ -84,15 +84,31 @@ function parseKeywordInput(str){
   if(!str) return [];
   return str.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
 }
+
+// 영문/숫자로만 된 키워드(AI, IPO 등)는 단어 경계를 지켜서 매칭.
+// 안 그러면 "gmail" 안의 "ai", "main" 안의 "ai"처럼 다른 단어 중간에 우연히
+// 낀 글자에도 매칭돼버림 (실제로 효림회계법인 사례에서 이메일 gmail.com에 낀
+// "ai"가 잘못 걸렸던 문제). 한글 키워드는 이 문제가 거의 없어 기존처럼 부분일치.
+function keywordMatches(text, keyword){
+  const kw = keyword.trim();
+  if(!kw) return false;
+  if(/^[a-zA-Z0-9]+$/.test(kw)){
+    const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`(?<![a-zA-Z0-9])${escaped}(?![a-zA-Z0-9])`, 'i');
+    return re.test(text);
+  }
+  return text.toLowerCase().includes(kw.toLowerCase());
+}
+
 function matchesKeywordFilter(p){
   const includeStr = document.getElementById('keywordInclude').value;
   const excludeStr = document.getElementById('keywordExclude').value;
   const includeList = parseKeywordInput(includeStr);
   const excludeList = parseKeywordInput(excludeStr);
   if(includeList.length === 0 && excludeList.length === 0) return true;
-  const text = (p.title + ' ' + p.content).toLowerCase();
-  if(includeList.length && !includeList.some(k => text.includes(k.toLowerCase()))) return false;
-  if(excludeList.length && excludeList.some(k => text.includes(k.toLowerCase()))) return false;
+  const text = p.title + ' ' + p.content;
+  if(includeList.length && !includeList.some(k => keywordMatches(text, k))) return false;
+  if(excludeList.length && excludeList.some(k => keywordMatches(text, k))) return false;
   return true;
 }
 
