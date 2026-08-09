@@ -18,6 +18,7 @@ import os
 import re
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
 import requests
@@ -107,11 +108,11 @@ def collect_kicpa_cpa():
                 "source_tab": tab_name,
             })
 
-    for p in postings:
+    def fetch_detail(p):
         p["url"] = f"https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face?ijIdNum={p['bltn_no']}"
         try:
             r = s.post("https://www.kicpa.or.kr/home/jobOffrSrchGnrl/detail.face",
-                        data={"ijIdNum": p["bltn_no"]})
+                        data={"ijIdNum": p["bltn_no"]}, timeout=15)
             r.encoding = "utf-8"
             soup2 = BeautifulSoup(r.text, "html.parser")
             field_map = {}
@@ -129,7 +130,12 @@ def collect_kicpa_cpa():
             p["experience"] = ""
             p["company_type"] = ""
             p["content"] = ""
-        time.sleep(0.1)
+        return p
+
+    # 순차로 하나씩(느림) 대신 동시에 여러 개씩(빠름) 상세페이지를 가져옴.
+    # 동시 개수(max_workers)를 너무 크게 잡으면 KICPA 서버에 부담을 줄 수 있어 8로 제한.
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        list(executor.map(fetch_detail, postings))
 
     return [p for p in postings if not is_expired(p.get("deadline", ""))]
 
