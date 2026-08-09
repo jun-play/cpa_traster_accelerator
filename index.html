@@ -1,484 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CPA 이직 엑셀러레이터 — 감사조서형 매칭보드</title>
-<style>
-  :root{
-    --ink:#1c2b39;
-    --ink-soft:#2c3e50;
-    --paper:#f6f1e4;
-    --paper-deep:#efe7d3;
-    --line:#d9cdaf;
-    --seal:#b2402f;
-    --seal-deep:#8f2f22;
-    --gold:#a9862f;
-    --slate:#5b6770;
-    --slate-light:#8a94a0;
-    --ok:#3c6e47;
-    --white:#fffdf8;
-    --radius:2px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    background-image:
-      linear-gradient(var(--line) 1px, transparent 1px);
-    background-size: 100% 2.1em;
-    background-position: 0 7.4em;
-  }
-
-  /* ---------- Header : 표지 블록 ---------- */
-  header{
-    background:var(--ink);
-    color:var(--paper);
-    padding:2.6rem 2.4rem 2rem;
-    position:relative;
-    border-bottom:6px solid var(--seal);
-  }
-  .eyebrow{
-    font-family:"SFMono-Regular",Consolas,monospace;
-    font-size:0.78rem;
-    letter-spacing:0.12em;
-    color:#c9b98a;
-    margin:0 0 0.6rem;
-  }
-  h1{
-    font-family:Georgia,"Noto Serif KR",serif;
-    font-size:2.1rem;
-    font-weight:700;
-    margin:0 0 0.5rem;
-    letter-spacing:-0.01em;
-  }
-  header p.sub{
-    max-width:640px;
-    color:#cdd6dc;
-    font-size:0.98rem;
-    line-height:1.6;
-    margin:0;
-  }
-  .header-meta{
-    position:absolute;
-    right:2.4rem;
-    top:2.6rem;
-    text-align:right;
-    font-family:"SFMono-Regular",Consolas,monospace;
-    font-size:0.75rem;
-    color:#9fb0ba;
-    line-height:1.6;
-  }
-
-  /* ---------- Stats bar ---------- */
-  .stats{
-    display:flex;
-    gap:0;
-    background:var(--white);
-    border-bottom:1px solid var(--line);
-    flex-wrap:wrap;
-  }
-  .stat{
-    flex:1;
-    min-width:140px;
-    padding:1.1rem 1.4rem;
-    border-right:1px solid var(--line);
-  }
-  .stat:last-child{border-right:none;}
-  .stat .num{
-    font-family:Georgia,serif;
-    font-size:1.7rem;
-    font-weight:700;
-    color:var(--ink);
-  }
-  .stat .label{
-    font-size:0.75rem;
-    color:var(--slate);
-    letter-spacing:0.03em;
-  }
-
-  /* ---------- Layout ---------- */
-  .layout{
-    display:grid;
-    grid-template-columns:300px 1fr;
-    gap:0;
-    align-items:start;
-  }
-  @media (max-width: 860px){
-    .layout{grid-template-columns:1fr;}
-  }
-
-  /* ---------- Profile panel ---------- */
-  aside{
-    position:sticky;
-    top:0;
-    background:var(--white);
-    border-right:1px solid var(--line);
-    padding:1.6rem 1.5rem 2.4rem;
-    min-height:100vh;
-  }
-  aside h2{
-    font-family:Georgia,serif;
-    font-size:1.05rem;
-    margin:0 0 1.1rem;
-    padding-bottom:0.6rem;
-    border-bottom:2px solid var(--ink);
-  }
-  .field{margin-bottom:1.3rem;}
-  .field label{
-    display:block;
-    font-size:0.8rem;
-    font-weight:600;
-    color:var(--ink-soft);
-    margin-bottom:0.4rem;
-  }
-  .field input[type=range]{width:100%;}
-  .field .rangeval{
-    font-family:"SFMono-Regular",Consolas,monospace;
-    font-size:0.85rem;
-    color:var(--seal);
-  }
-  .chip-group{display:flex;flex-direction:column;gap:0.45rem;}
-  .chip{
-    display:flex;
-    align-items:flex-start;
-    gap:0.5rem;
-    font-size:0.82rem;
-    line-height:1.4;
-    color:var(--ink-soft);
-    cursor:pointer;
-    padding:0.4rem 0.5rem;
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    background:var(--paper);
-  }
-  .chip input{margin-top:0.15rem;}
-  .chip.active{
-    border-color:var(--seal);
-    background:#fbeee9;
-  }
-  select, input[type=text]{
-    width:100%;
-    padding:0.5rem 0.6rem;
-    border:1px solid var(--line);
-    background:var(--paper);
-    font-size:0.85rem;
-    font-family:inherit;
-    color:var(--ink);
-    border-radius:var(--radius);
-  }
-  .weight-note{
-    font-size:0.72rem;
-    color:var(--slate-light);
-    margin-top:0.5rem;
-    line-height:1.5;
-  }
-  .btn-score{
-    width:100%;
-    background:var(--seal);
-    color:var(--white);
-    border:none;
-    padding:0.75rem;
-    font-size:0.92rem;
-    font-weight:700;
-    letter-spacing:0.02em;
-    cursor:pointer;
-    margin-top:0.4rem;
-    border-radius:var(--radius);
-  }
-  .btn-score:hover{background:var(--seal-deep);}
-
-  /* ---------- Main list ---------- */
-  main{padding:1.4rem 1.6rem 3rem;}
-  .toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:1rem;
-    flex-wrap:wrap;
-    gap:0.6rem;
-  }
-  .toolbar .sortbox{display:flex;gap:0.5rem;align-items:center;font-size:0.8rem;color:var(--slate);}
-  .toolbar select{width:auto;}
-
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(320px,1fr));
-    gap:1rem;
-  }
-
-  .card{
-    background:var(--white);
-    border:1px solid var(--line);
-    padding:1.1rem 1.15rem 1rem;
-    position:relative;
-    cursor:pointer;
-    transition:box-shadow .15s ease, transform .15s ease;
-  }
-  .card:hover{
-    box-shadow:0 6px 18px rgba(28,43,57,0.12);
-    transform:translateY(-2px);
-  }
-  .stamp{
-    position:absolute;
-    top:0.7rem;
-    right:0.8rem;
-    width:44px;height:44px;
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-family:Georgia,serif;
-    font-weight:700;
-    font-size:1.3rem;
-    transform:rotate(-8deg);
-    border:2.5px solid currentColor;
-  }
-  .stamp.A{color:var(--seal);}
-  .stamp.B{color:var(--gold);}
-  .stamp.C{color:var(--slate);}
-  .stamp.D{color:var(--slate-light);}
-
-  .card .company{
-    font-size:0.78rem;
-    color:var(--slate);
-    font-weight:600;
-    margin-bottom:0.25rem;
-  }
-  .card .title{
-    font-family:Georgia,serif;
-    font-size:1.02rem;
-    line-height:1.4;
-    padding-right:3.2rem;
-    margin-bottom:0.6rem;
-    color:var(--ink);
-  }
-  .card .reason{
-    font-size:0.8rem;
-    color:var(--ink-soft);
-    background:var(--paper);
-    border-left:3px solid var(--seal);
-    padding:0.45rem 0.6rem;
-    margin-bottom:0.65rem;
-    line-height:1.5;
-  }
-  .meta-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:0.4rem 0.6rem;
-    font-size:0.74rem;
-    color:var(--slate);
-    font-family:"SFMono-Regular",Consolas,monospace;
-  }
-  .meta-row span{white-space:nowrap;}
-  .deadline-tag{
-    font-weight:700;
-  }
-  .deadline-tag.soon{color:var(--seal);}
-  .score-bar-track{
-    height:5px;background:var(--paper-deep);margin-top:0.7rem;
-  }
-  .score-bar-fill{height:100%;background:var(--ink);}
-
-  /* ---------- Modal ---------- */
-  .overlay{
-    display:none;
-    position:fixed;inset:0;
-    background:rgba(28,43,57,0.55);
-    align-items:flex-start;
-    justify-content:center;
-    padding:3vh 1.2rem;
-    overflow-y:auto;
-    z-index:50;
-  }
-  .overlay.open{display:flex;}
-  .modal{
-    background:var(--white);
-    max-width:640px;width:100%;
-    padding:1.8rem 1.9rem 2.2rem;
-    position:relative;
-    border-top:5px solid var(--seal);
-  }
-  .modal .close{
-    position:absolute;top:0.9rem;right:1rem;
-    background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--slate);
-  }
-  .modal h3{
-    font-family:Georgia,serif;
-    font-size:1.25rem;
-    margin:0.2rem 2rem 0.2rem 0;
-    line-height:1.4;
-  }
-  .modal .company{color:var(--slate);font-size:0.85rem;margin-bottom:1rem;}
-  .modal section{margin-bottom:1.1rem;}
-  .modal section h4{
-    font-size:0.78rem;
-    letter-spacing:0.05em;
-    color:var(--seal);
-    text-transform:uppercase;
-    margin:0 0 0.4rem;
-    border-bottom:1px solid var(--line);
-    padding-bottom:0.3rem;
-  }
-  .modal section p, .modal section li{
-    font-size:0.87rem;
-    line-height:1.65;
-    color:var(--ink-soft);
-    margin:0.2rem 0;
-  }
-  .axis-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;}
-  .axis-label{width:120px;font-size:0.78rem;color:var(--slate);flex-shrink:0;}
-  .axis-track{flex:1;height:7px;background:var(--paper-deep);position:relative;}
-  .axis-fill{height:100%;background:var(--ink);}
-  .axis-val{width:34px;text-align:right;font-family:"SFMono-Regular",Consolas,monospace;font-size:0.78rem;color:var(--ink);}
-
-  .empty{
-    padding:3rem 1rem;
-    text-align:center;
-    color:var(--slate);
-    font-size:0.9rem;
-  }
-  footer{
-    text-align:center;
-    padding:1.6rem;
-    font-size:0.72rem;
-    color:var(--slate-light);
-    border-top:1px solid var(--line);
-  }
-
-  /* ---------- Pull bar ---------- */
-  .pullbar{
-    background:var(--paper-deep);
-    border-bottom:1px solid var(--line);
-    padding:0.85rem 2.4rem;
-    display:flex;
-    align-items:center;
-    gap:1rem;
-    flex-wrap:wrap;
-  }
-  .btn-pull{
-    background:var(--ink);
-    color:var(--paper);
-    border:none;
-    padding:0.6rem 1.1rem;
-    font-size:0.85rem;
-    font-weight:700;
-    cursor:pointer;
-    border-radius:var(--radius);
-    letter-spacing:0.01em;
-    flex-shrink:0;
-  }
-  .btn-pull:hover{background:var(--ink-soft);}
-  .btn-pull:disabled{background:var(--slate-light);cursor:wait;}
-  .pull-status{
-    font-size:0.82rem;
-    color:var(--slate);
-    line-height:1.5;
-  }
-  .pull-status.error{color:var(--seal);font-weight:600;}
-  .pull-status.ok{color:var(--ok);}
-</style>
-</head>
-<body>
-
-<header>
-  <p class="eyebrow">WORKPAPER — CPA CAREER MATCH · REF. <span id="refDate">-</span></p>
-  <h1>회계사 이직 엑셀러레이터</h1>
-  <p class="sub">공고 원문을 감사조서처럼 한 건씩 대조해, 왜 맞고 왜 안 맞는지 근거를 남깁니다. 등급은 참고용 tickmark일 뿐 — 최종 판단은 본인 몫입니다.</p>
-  <div class="header-meta">SOURCE: KICPA 구인(CPA)<br>SAMPLE: <span id="metaCount">0</span>건 (마감분 제외)</div>
-</header>
-
-<div class="pullbar">
-  <button class="btn-pull" id="pullBtn">한공회 구인공고 가져오기</button>
-  <span class="pull-status" id="pullStatus">아직 아무 공고도 없습니다. 버튼을 눌러 KICPA에서 실시간으로 가져오세요. (40~60초 정도 걸려요 — 공고 하나하나 원문까지 확인하는 중이라 그렇습니다)</span>
-</div>
-
-<div class="stats">
-  <div class="stat"><div class="num" id="statTotal">-</div><div class="label">전체 공고</div></div>
-  <div class="stat"><div class="num" id="statA">-</div><div class="label">A등급</div></div>
-  <div class="stat"><div class="num" id="statSoon">-</div><div class="label">7일 내 마감</div></div>
-  <div class="stat"><div class="num" id="statScored">-</div><div class="label">채점 완료</div></div>
-</div>
-
-<div class="layout">
-  <aside>
-    <h2>내 프로필</h2>
-
-    <div class="field">
-      <label>경력 연차: <span class="rangeval" id="yearsVal">5년</span></label>
-      <input type="range" id="years" min="0" max="20" value="5">
-    </div>
-
-    <div class="field">
-      <label>선호 지역</label>
-      <select id="region">
-        <option value="">무관</option>
-        <option>서울</option>
-        <option>경기</option>
-        <option>부산</option>
-        <option>대구</option>
-        <option>기타 지방</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>중요하게 보는 축 (복수 선택 가능)</label>
-      <div class="chip-group" id="axisChips">
-        <label class="chip active" data-axis="round1">
-          <input type="checkbox" value="round1" checked>
-          System/AI 레버리지 — Innovation·자동화·디지털 관련 업무
-        </label>
-        <label class="chip active" data-axis="round2">
-          <input type="checkbox" value="round2" checked>
-          감사 유지 — 순수 회계감사 중심, 딜/세무/개업 제외
-        </label>
-        <label class="chip" data-axis="big4">
-          <input type="checkbox" value="big4">
-          Big4 우선 — 삼일·삼정·안진·EY한영
-        </label>
-      </div>
-      <p class="weight-note">체크한 축에 가중치가 실립니다. 아무것도 안 고르면 경력·지역 매칭만으로 채점합니다.</p>
-    </div>
-
-    <button class="btn-score" id="scoreBtn">내 프로필로 채점하기</button>
-    <p class="weight-note" style="margin-top:1rem;">※ 이 점수는 공고 원문의 키워드·경력조건을 규칙 기반으로 대조한 것입니다. AI가 임의로 판단하지 않고, 근거가 되는 문구를 그대로 보여줍니다.</p>
-  </aside>
-
-  <main>
-    <div class="toolbar">
-      <div class="sortbox">
-        총 <strong id="visibleCount">-</strong>건 표시
-      </div>
-      <div class="sortbox">
-        정렬:
-        <select id="sortSel">
-          <option value="score">적합도 높은 순</option>
-          <option value="deadline">마감 임박 순</option>
-          <option value="company">회사명 순</option>
-        </select>
-        등급:
-        <select id="gradeFilter">
-          <option value="">전체</option>
-          <option value="A">A만</option>
-          <option value="B">B이상</option>
-          <option value="C">C이상</option>
-        </select>
-      </div>
-    </div>
-    <div class="grid" id="cardGrid"></div>
-    <div class="empty" id="emptyMsg" style="display:none;">조건에 맞는 공고가 없습니다. 필터를 조정해보세요.</div>
-  </main>
-</div>
-
-<footer>
-  이 대시보드는 KICPA 구인(CPA) 게시판을 "가져오기" 버튼을 누른 시점 기준으로 실시간 수집합니다 (서버 캐시 30분). 실제 지원 전 원문 공고를 반드시 다시 확인하세요.
-</footer>
-
-<div class="overlay" id="overlay">
-  <div class="modal" id="modalBody"></div>
-</div>
-
-<script>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CPA Career OS</title><style>
+:root{--bg:#f7f8fb;--panel:#fff;--text:#171a21;--muted:#6b7280;--line:#e6e9ef;--accent:#4f46e5;--accent-soft:#eef2ff;--green:#0f9f6e;--green-soft:#eaf9f3;--amber:#b7791f;--amber-soft:#fff7e6;--red:#c2414d;--shadow:0 10px 35px rgba(20,28,45,.06)}*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--text);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}button,select,input{font:inherit}.topbar{height:66px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--text);color:white;display:grid;place-items:center;font-weight:800;font-size:.86rem}.brand-copy strong{display:block;font-size:.98rem}.brand-copy span{display:block;color:var(--muted);font-size:.72rem;margin-top:2px}.primary-btn{border:0;border-radius:10px;padding:9px 13px;background:var(--text);color:#fff;font-weight:800;cursor:pointer;font-size:.82rem}.page{max-width:1400px;margin:0 auto;padding:30px 32px 60px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}.hero h1{margin:0 0 8px;font-size:2rem;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);line-height:1.6;max-width:760px;font-size:.94rem}.hero-status{text-align:right;color:var(--muted);font-size:.78rem;line-height:1.55}.hero-status strong{color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}.stat-card span{display:block;color:var(--muted);font-size:.75rem;margin-bottom:8px}.stat-card strong{font-size:1.55rem;letter-spacing:-.04em}.profile-strip,.pullbar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.profile-label{font-size:.74rem;color:var(--muted);font-weight:800;margin-right:2px}.profile-pill{border:1px solid var(--line);background:#fafbfc;border-radius:999px;padding:7px 10px;font-size:.77rem;color:#343946;display:flex;align-items:center;gap:6px}.profile-pill input{accent-color:var(--accent)}.profile-spacer{flex:1}.profile-inline{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted)}.profile-inline select{border:1px solid var(--line);background:white;border-radius:9px;padding:7px 9px}.profile-inline input[type=range]{width:110px}.btn-pull{border:0;background:var(--text);color:white;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.8rem;cursor:pointer}.btn-pull:disabled{opacity:.55}.pull-status{font-size:.78rem;color:var(--muted)}.pull-status.ok{color:var(--green)}.pull-status.error{color:var(--red);font-weight:700}.toolbar{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px}.toolbar-left{color:var(--muted);font-size:.82rem}.toolbar-left strong{color:var(--text)}.toolbar-right{display:flex;gap:8px}.toolbar select{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 10px;color:var(--text)}.job-list{display:flex;flex-direction:column;gap:10px}.job-card{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:20px;cursor:pointer;transition:.16s ease}.job-card:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:#d7dce5}.job-topline{display:flex;justify-content:space-between;gap:14px}.company{color:var(--muted);font-size:.77rem;font-weight:700;margin-bottom:6px}.job-card h3{margin:0;font-size:1rem;line-height:1.45;letter-spacing:-.018em}.match-score{min-width:70px;text-align:right;white-space:nowrap}.match-score strong{font-size:1.32rem}.match-score span{font-size:.7rem;color:var(--muted);margin-left:2px}.fit-high,.fit-high strong{color:var(--green)}.fit-mid,.fit-mid strong{color:var(--accent)}.fit-low,.fit-low strong{color:var(--amber)}.fit-dim,.fit-dim strong{color:#9aa1ad}.job-meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.74rem;margin-top:10px}.job-meta span::after{content:"·";margin-left:8px;color:#c6cad2}.job-meta span:last-child::after{content:""}.deadline.soon{color:var(--red);font-weight:800}.decision-row{display:flex;align-items:flex-start;gap:10px;margin-top:13px}.decision{flex:0 0 auto;border-radius:999px;padding:5px 8px;font-size:.7rem;font-weight:800;background:#f2f3f5}.decision.fit-high{background:var(--green-soft)}.decision.fit-mid{background:var(--accent-soft)}.decision.fit-low{background:var(--amber-soft)}.decision-row p{margin:3px 0 0;font-size:.79rem;color:#4f5664;line-height:1.45}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.tag{font-size:.68rem;color:#5f6674;background:#f6f7f9;border:1px solid #eceef2;border-radius:8px;padding:5px 7px}.job-side{border-left:1px solid var(--line);display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:10px}.fit-copy{font-size:.75rem;color:var(--muted);font-weight:700}.detail-btn{border:0;background:transparent;color:var(--accent);font-weight:800;font-size:.8rem;cursor:pointer}.empty{background:white;border:1px dashed #d9dde5;border-radius:16px;padding:50px 20px;text-align:center;color:var(--muted)}.overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,.34);z-index:100;justify-content:flex-end}.overlay.open{display:flex}.modal{width:min(720px,92vw);height:100%;overflow:auto;background:white;padding:30px 30px 46px;box-shadow:-12px 0 50px rgba(17,24,39,.12);position:relative}.close{position:absolute;right:22px;top:18px;border:0;background:#f4f5f7;border-radius:50%;width:34px;height:34px;font-size:1.25rem;cursor:pointer}.drawer-kicker{font-size:.72rem;color:var(--accent);font-weight:900;margin-bottom:12px}.drawer-head{display:flex;justify-content:space-between;gap:20px;padding-right:50px;margin-bottom:24px}.drawer-head h2{font-size:1.38rem;margin:0 0 8px;line-height:1.4;letter-spacing:-.035em}.drawer-meta{color:var(--muted);font-size:.79rem}.drawer-score strong{font-size:2rem}.drawer-score span{font-size:.78rem;color:var(--muted);margin-left:3px}.modal section{margin-top:24px}.modal h4{font-size:.82rem;margin:0 0 12px}.insight-box{background:#f8f9fc;border:1px solid var(--line);border-radius:14px;padding:14px 16px}.insight-box p{margin:6px 0 0;line-height:1.55;font-size:.85rem}.section-label{font-size:.69rem;color:var(--muted);font-weight:800}.section-title-row{display:flex;justify-content:space-between;align-items:center}.section-title-row span{font-size:.69rem;color:var(--muted)}.axis-block{margin-bottom:14px}.axis-head{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:6px}.axis-track{height:6px;background:#edf0f4;border-radius:999px;overflow:hidden}.axis-fill{height:100%;background:var(--accent)}.axis-block p{margin:5px 0 0;font-size:.73rem;color:var(--muted);line-height:1.45}.body-copy{font-size:.83rem;color:#4b5260;line-height:1.7;margin:0}.source-copy{background:#fafbfc;border:1px solid var(--line);border-radius:12px;padding:14px}footer{max-width:1400px;margin:0 auto;padding:0 32px 34px;color:#9aa1ad;font-size:.7rem}@media(max-width:900px){.topbar{padding:0 16px}.page{padding:24px 16px 50px}.hero{display:block}.hero-status{text-align:left;margin-top:12px}.stats{grid-template-columns:repeat(2,1fr)}.profile-spacer{display:none}.job-card{grid-template-columns:1fr}.job-side{border-left:0;border-top:1px solid var(--line);padding-top:12px;align-items:flex-start}}
+</style></head><body><header class="topbar"><div class="brand"><div class="brand-mark">CPA</div><div class="brand-copy"><strong>Career OS</strong><span>회계사 이직 의사결정 도구</span></div></div><button class="primary-btn" id="scoreBtn">내 기준으로 다시 분석</button></header><main class="page"><section class="hero"><div><h1>다음 커리어를, 공고가 아니라 판단으로 보세요.</h1><p>한공회 공고를 전수 수집하고 내 경력과 선호를 기준으로 우선순위를 정리합니다. 점수는 참고값이고, 핵심은 “왜 지원할지”를 빠르게 판단하는 것입니다.</p></div><div class="hero-status">SOURCE <strong>KICPA 구인(CPA)</strong><br><span id="metaCount">0</span>건 분석 대상</div></section><section class="stats"><div class="stat-card"><span>전체 공고</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>Strong fit</span><strong id="statA">0</strong></div><div class="stat-card"><span>7일 내 마감</span><strong id="statSoon">0</strong></div><div class="stat-card"><span>분석 완료</span><strong id="statScored">0</strong></div></section><section class="profile-strip"><span class="profile-label">내 기준</span><label class="profile-pill"><input class="axis-visible" data-axis="round1" type="checkbox" checked>AI / System 레버리지</label><label class="profile-pill"><input class="axis-visible" data-axis="round2" type="checkbox" checked>감사 커리어 활용</label><label class="profile-pill"><input class="axis-visible" data-axis="big4" type="checkbox">Big4 우선</label><div class="profile-spacer"></div><div class="profile-inline"><span>경력 <strong id="yearsVal">5년</strong></span><input type="range" id="years" min="0" max="20" value="5"></div><div class="profile-inline"><span>지역</span><select id="region"><option value="">무관</option><option>서울</option><option>경기</option><option>부산</option><option>대구</option><option>기타 지방</option></select></div></section><div id="axisChips" style="display:none"><input type="checkbox" value="round1" checked><input type="checkbox" value="round2" checked><input type="checkbox" value="big4"></div><section class="pullbar"><button class="btn-pull" id="pullBtn">공고 업데이트</button><span class="pull-status" id="pullStatus">아직 공고를 가져오지 않았습니다. 업데이트를 누르면 KICPA 공고 원문을 확인해 분석합니다.</span></section><div class="toolbar"><div class="toolbar-left">총 <strong id="visibleCount">0</strong>건</div><div class="toolbar-right"><select id="sortSel"><option value="score">적합도 높은 순</option><option value="deadline">마감 임박 순</option><option value="company">회사명 순</option></select><select id="gradeFilter"><option value="">전체</option><option value="A">Strong fit만</option><option value="B">Explore 이상</option><option value="C">Possible 이상</option></select></div></div><div class="job-list" id="cardGrid"></div><div class="empty" id="emptyMsg" style="display:none"></div></main><footer>CPA Career OS prototype · 실제 지원 전 공고 원문과 채용조건을 반드시 확인하세요.</footer><div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div><script>
 let POSTINGS = [];
 
 const ROUND1_KEYWORDS = ["Innovation","혁신","AI 신사업","AI Agent","디지털 감사","Digital Audit","자동화","Tech Lead","System","데이터 분석","AI활용","AI Agent","AI"];
@@ -580,7 +102,7 @@ function deadlineDays(deadlineStr){
   if(!m) return null;
   const d = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 시:분:초 제거, 날짜만 비교
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 시:분:초 제거 — 안 하면 시간대에 따라 D-day가 하루씩 밀림
   return Math.round((d-today)/(1000*60*60*24));
 }
 
@@ -604,96 +126,72 @@ function runScoring(){
   render();
 }
 
+function fitLabel(p){
+  if(p.grade === 'A') return 'Strong fit';
+  if(p.grade === 'B') return 'Explore';
+  if(p.grade === 'C') return 'Possible';
+  return 'Low fit';
+}
+function actionLabel(p){
+  if(p.grade === 'A') return '지원 추천';
+  if(p.grade === 'B') return '검토 추천';
+  if(p.grade === 'C') return '조건부 검토';
+  return '우선순위 낮음';
+}
+function gradeClass(grade){
+  return grade === 'A' ? 'fit-high' : grade === 'B' ? 'fit-mid' : grade === 'C' ? 'fit-low' : 'fit-dim';
+}
 function render(){
   const sortSel = document.getElementById('sortSel').value;
   const gradeFilter = document.getElementById('gradeFilter').value;
   let list = scoredData.slice();
-
   if(gradeFilter === 'A') list = list.filter(p=>p.grade==='A');
   else if(gradeFilter === 'B') list = list.filter(p=>['A','B'].includes(p.grade));
   else if(gradeFilter === 'C') list = list.filter(p=>['A','B','C'].includes(p.grade));
-
   if(sortSel==='score') list.sort((a,b)=>b.total-a.total);
   else if(sortSel==='deadline') list.sort((a,b)=>(a.days??999)-(b.days??999));
   else if(sortSel==='company') list.sort((a,b)=>a.company.localeCompare(b.company,'ko'));
-
   document.getElementById('visibleCount').textContent = list.length;
   const noData = POSTINGS.length === 0;
   document.getElementById('emptyMsg').style.display = list.length ? 'none' : 'block';
-  document.getElementById('emptyMsg').textContent = noData
-    ? '아직 공고가 없습니다. 위 "한공회 구인공고 가져오기" 버튼을 눌러주세요.'
-    : '조건에 맞는 공고가 없습니다. 필터를 조정해보세요.';
-
+  document.getElementById('emptyMsg').textContent = noData ? '아직 공고가 없습니다. 상단의 공고 업데이트를 눌러주세요.' : '현재 조건에 맞는 공고가 없습니다.';
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = '';
-  list.forEach((p,idx)=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    const soon = p.days!==null && p.days<=7;
+  list.forEach((p)=>{
+    const card = document.createElement('article');
+    card.className = 'job-card';
+    const soon = p.days!==null && p.days>=0 && p.days<=7;
+    const deadlineText = p.days!==null ? (p.days<0 ? '마감' : p.days===0 ? '오늘 마감' : `D-${p.days}`) : (p.deadline || '마감일 미상');
+    const axisTags = p.axes.filter(a => a.score >= Math.max(14, a.max*0.55)).slice(0,3).map(a => `<span class="tag">${a.label}</span>`).join('');
     card.innerHTML = `
-      <div class="stamp ${p.grade}">${p.grade}</div>
-      <div class="company">${p.company}${p.company_type?(' · '+p.company_type):''}</div>
-      <div class="title">${p.title}</div>
-      <div class="reason">${p.oneLiner}</div>
-      <div class="meta-row">
-        <span>${p.region||'지역미상'}</span>
-        <span>경력 ${p.experience||'미상'}</span>
-        <span class="deadline-tag ${soon?'soon':''}">${p.days!==null ? (p.days<0?'마감':'D-'+p.days) : p.deadline}</span>
+      <div class="job-main">
+        <div class="job-topline">
+          <div><div class="company">${p.company}${p.company_type?(' · '+p.company_type):''}</div><h3>${p.title}</h3></div>
+          <div class="match-score ${gradeClass(p.grade)}"><strong>${p.total}</strong><span>/100</span></div>
+        </div>
+        <div class="job-meta"><span>${p.region||'지역 미상'}</span><span>경력 ${p.experience||'미상'}</span><span class="${soon?'deadline soon':'deadline'}">${deadlineText}</span></div>
+        <div class="decision-row"><span class="decision ${gradeClass(p.grade)}">${actionLabel(p)}</span><p>${p.oneLiner}</p></div>
+        <div class="tags">${axisTags}</div>
       </div>
-      <div class="score-bar-track"><div class="score-bar-fill" style="width:${p.total}%"></div></div>
-    `;
+      <div class="job-side"><span class="fit-copy">${fitLabel(p)}</span><button class="detail-btn" type="button">상세 보기</button></div>`;
     card.addEventListener('click', ()=>openModal(p));
     grid.appendChild(card);
   });
 }
-
 function openModal(p){
   const modal = document.getElementById('modalBody');
-  const axisHtml = p.axes.map(a=>`
-    <div class="axis-row">
-      <div class="axis-label">${a.label}</div>
-      <div class="axis-track"><div class="axis-fill" style="width:${(a.score/a.max*100)}%"></div></div>
-      <div class="axis-val">${a.score}/${a.max}</div>
-    </div>
-    <p style="font-size:0.76rem;color:var(--slate);margin:-0.15rem 0 0.5rem 0;">${a.reason}</p>
-  `).join('');
-
+  const axisHtml = p.axes.map(a=>`<div class="axis-block"><div class="axis-head"><span>${a.label}</span><strong>${a.score}/${a.max}</strong></div><div class="axis-track"><div class="axis-fill" style="width:${(a.score/a.max*100)}%"></div></div><p>${a.reason}</p></div>`).join('');
   modal.innerHTML = `
-    <button class="close" id="closeBtn">×</button>
-    <div class="stamp ${p.grade}" style="position:static;display:inline-flex;transform:rotate(-6deg);margin-bottom:0.6rem;">${p.grade}</div>
-    <h3>${p.title}</h3>
-    <div class="company">${p.company} · ${p.region} · 경력 ${p.experience||'미상'} · 마감 ${p.deadline}</div>
-
-    <section>
-      <h4>매칭 근거 (축별 채점)</h4>
-      ${axisHtml}
-    </section>
-
-    <section>
-      <h4>공고 원문 발췌</h4>
-      <p>${p.content}</p>
-    </section>
-
-    <section>
-      <h4>지원 전략 메모</h4>
-      <p>${strategyNote(p)}</p>
-    </section>
-  `;
+    <button class="close" id="closeBtn" aria-label="닫기">×</button>
+    <div class="drawer-kicker">${actionLabel(p)} · ${fitLabel(p)}</div>
+    <div class="drawer-head"><div><div class="company">${p.company}</div><h2>${p.title}</h2><div class="drawer-meta">${p.region||'지역 미상'} · 경력 ${p.experience||'미상'} · 마감 ${p.deadline||'미상'}</div></div><div class="drawer-score ${gradeClass(p.grade)}"><strong>${p.total}</strong><span>/100</span></div></div>
+    <section class="insight-box"><span class="section-label">한 줄 판단</span><p>${p.oneLiner}</p></section>
+    <section><div class="section-title-row"><h4>적합도 분석</h4><span>규칙 기반</span></div>${axisHtml}</section>
+    <section><h4>지원 전략</h4><p class="body-copy">${strategyNote(p)}</p></section>
+    <section><h4>공고 원문 발췌</h4><p class="body-copy source-copy">${p.content}</p></section>`;
   document.getElementById('closeBtn').addEventListener('click', closeModal);
   document.getElementById('overlay').classList.add('open');
 }
-
-function strategyNote(p){
-  const notes = [];
-  if(p.days!==null && p.days<=7 && p.days>=0) notes.push(`마감이 ${p.days}일 남아 촉박합니다 — 우선순위를 높여 이번 주 안에 서류를 준비하는 게 안전합니다.`);
-  if(p.grade==='A') notes.push('네 축 중 다수에서 높은 점수 — 원문을 정독하고 자기소개서에 감사/시스템 관련 경험을 앞쪽에 배치하는 걸 권합니다.');
-  if(p.grade==='D') notes.push('현재 프로필과 구조적으로 잘 안 맞는 공고입니다. 지원 자체보다 다른 공고에 시간을 쓰는 게 나을 수 있습니다.');
-  const exMatch = findMatch(p.title+p.content, EXCLUDE_KEYWORDS);
-  if(exMatch) notes.push(`'${exMatch}' 요소가 있어 감사 외 업무(딜/세무 등) 비중을 원문에서 다시 확인하세요.`);
-  if(notes.length===0) notes.push('중립적인 매칭입니다 — 원문의 세부 조직문화·본부 배치를 직접 확인해보는 걸 권합니다.');
-  return notes.join(' ');
-}
-
 function closeModal(){
   document.getElementById('overlay').classList.remove('open');
 }
@@ -755,7 +253,7 @@ pullBtn.addEventListener('click', async ()=>{
     pullStatus.textContent = '가져오기 실패: ' + err.message + ' — 서버가 켜져 있는지 확인하세요.';
   } finally {
     pullBtn.disabled = false;
-    pullBtn.textContent = '한공회 구인공고 가져오기';
+    pullBtn.textContent = '공고 업데이트';
   }
 });
 
@@ -765,13 +263,10 @@ document.getElementById('statTotal').textContent = '0';
 document.getElementById('statSoon').textContent = '0';
 document.getElementById('statA').textContent = '0';
 document.getElementById('statScored').textContent = '0';
-
-// 헤더의 REF 날짜는 페이지를 연 그 날짜로 (하드코딩 아님)
-const _now = new Date();
-document.getElementById('refDate').textContent =
-  `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
-
 render();
-</script>
-</body>
-</html>
+
+// visible profile pills -> legacy scoring inputs
+const visibleAxes = Array.from(document.querySelectorAll('.axis-visible'));
+const hiddenAxes = Array.from(document.querySelectorAll('#axisChips input'));
+visibleAxes.forEach((v,i)=>{ v.addEventListener('change',()=>{ hiddenAxes[i].checked=v.checked; }); });
+</script></body></html>
