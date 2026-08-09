@@ -55,11 +55,22 @@ function deadlineDays(deadlineStr){
 let viewData = [];
 
 function processData(){
-  viewData = POSTINGS.map(p => Object.assign({}, p, {
-    days: deadlineDays(p.deadline),
-    tags: typeBuckets(p),
-  }));
+  viewData = POSTINGS
+    .map(p => Object.assign({}, p, {
+      days: deadlineDays(p.deadline),
+      tags: typeBuckets(p),
+    }))
+    // 서버가 데이터를 가져온 시점엔 마감 전이었어도, 캐시(최대 30분)나
+    // 자정을 넘겨서 보는 경우 실제로는 이미 지났을 수 있음 — 화면에 보여줄
+    // 때 기준으로 한 번 더 걸러냄
+    .filter(p => p.days === null || p.days >= 0);
+
+  document.getElementById('metaCount').textContent = viewData.length;
+  document.getElementById('statTotal').textContent = viewData.length;
   document.getElementById('statScored').textContent = viewData.length;
+  const soonCount = viewData.filter(p=>p.days!==null && p.days<=7).length;
+  document.getElementById('statSoon').textContent = soonCount;
+
   render();
 }
 
@@ -284,16 +295,12 @@ pullBtn.addEventListener('click', async ()=>{
 
     POSTINGS = payload.postings;
     FACET_DEFS.forEach(f=> selectedFacets[f.key] = new Set()); // 새로 가져온 데이터 기준으로 필터 초기화 — 이전 선택이 새 데이터와 안 맞을 수 있어서
-    document.getElementById('metaCount').textContent = POSTINGS.length;
-    document.getElementById('statTotal').textContent = POSTINGS.length;
-    const soonCount = POSTINGS.filter(p=>{const d=deadlineDays(p.deadline); return d!==null && d>=0 && d<=7;}).length;
-    document.getElementById('statSoon').textContent = soonCount;
 
     pullStatus.className = 'pull-status ok';
     const freshNote = payload.cached
       ? `(캐시됨 — ${payload.fetched_minutes_ago}분 전 기준, 30분마다 갱신됩니다)`
       : '(방금 새로 가져옴)';
-    pullStatus.textContent = `완료 — ${POSTINGS.length}건 ${freshNote}. 아래 필터로 조건을 좁혀보세요.`;
+    pullStatus.textContent = `완료 — ${payload.postings.length}건 확인 ${freshNote}. 아래 필터로 조건을 좁혀보세요.`;
 
     processData();
   } catch(err){
